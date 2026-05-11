@@ -1,0 +1,12 @@
+\subsubsection{Exploiting Human Perception~\citep{christiano2023deepreinforcementlearninghuman, OpenAI_Learning_2017}}
+\label{sec:claw}
+
+Researchers set out to explore whether they could train a reinforcement learning algorithm by inferring the reward function through repeated interaction with a human in the loop. One of their chosen domains was a robotics task where a claw hand needed to grasp items in the scene. The robot would move the hand around and then a person would look at the screen to judge whether or not the robot was holding the object. However, because humans were observing the agent from only a single perspective, the reinforcement learning agent learned to position the claw between the camera and the object so it appeared to be grasping it without actually learning the fine motor skills necessary to handle objects. In their blog post about the project~\citep{OpenAI_Learning_2017}, the team noted:
+
+\begin{quote}
+
+
+Our AI agent starts by acting randomly in the environment. Periodically, two video clips of its behavior are given to a human, and the human decides which of the two clips is closest to fulfilling its goal.
+
+Our algorithm's performance is only as good as the human evaluator's intuition about what behaviors look correct, so if the human does not have a good grasp of the task they may not offer as much helpful feedback. Relatedly, in some domains our system can result in agents adopting policies that trick the evaluators. For example, a robot which was supposed to grasp items instead positioned its manipulator in between the camera and the object so that it only appeared to be grasping it. We addressed this particular problem by adding in visual cues to make it easy for the human evaluators to estimate depth. % (\Cref{fig:claw}).
+\end{quote}

@@ -1,0 +1,19 @@
+\subsection{Agent Takes Drugs to Reward Hack by Hallucinating Reaching the Goal~\citep{klissarov2024motif}}
+\label{sec:motif}
+
+As mentioned in the preamble of \Cref{rewardHacking}, NetHack is a roguelike game from 1987 where the agent needs to traverse a procedurally generated dungeon full of monsters and traps while managing its health and hunger until it acquires an amulet at the bottom of the dungeon. To win, the player then needs to return to the entrance with the amulet.
+
+Instead of hand-designing an intrinsic reward bonus to incentivize RL agents to explore more of the world (as seen previously, e.g., in \Cref{sec:pokemon}), \citet{klissarov2024motif} distilled an LLM's sense of ``what looks like progress in NetHack'' into a reward model---a model that outputs numeric rewards for a given game state---and then trained RL agents to play NetHack using this learned reward model.
+\citet{klissarov2024motif} tested their method, named Motif, on the Oracle task in the NetHack Learning Environment. The Oracle task is a challenge that requires the agent to navigate deep into a procedurally generated dungeon to find a unique character called the Oracle, who is located somewhere in levels 4--9.
+Reaching the Oracle is challenging because it requires mastery of combat, inventory management, path planning, and long-term survival mechanics, so \citet{klissarov2024motif} thought it would be a good proxy for learning to play NetHack well. Furthermore, previous learning methods often failed to reach the Oracle.
+
+To the researchers' surprise, their agent achieved an unprecedented 40\% success rate on the task.
+However, when they analyzed the trajectories, they realized the agent had discovered a bizarre loophole that bypassed the entire challenge of the dungeon.
+Rather than descending into the lower levels, the agent would spend its entire time on the first level hunting for a specific monster: the yellow mold.
+
+Upon killing and eating the yellow mold, the agent would enter a state of hallucination, a game mechanic that causes every monster on the screen to randomly shapeshift into a different monster every timestep.
+Often, the Oracle was eventually randomly chosen as the hallucination. 
+The NetHack Learning Environment's reward function, blind to the hallucination, verified that an Oracle sprite was adjacent to the agent and signaled a successful completion of the task.
+The RL optimization process happily latched onto this shortcut.
+
+Interestingly, prior algorithms tested in this environment had not uncovered this reward hack. The authors speculated that their foundation model-derived intrinsic motivation created a more powerful search algorithm capable of deeper exploration, exposing the agent to rarer game mechanics. This serves as a reminder that an environment should never be assumed to be free of reward hacks, as more capable search algorithms may uncover exploits that previous methods did not. Overall, this result is a familiar kind of reward hacking, but carried out by a much more competent agent whose capabilities were, in this case, boosted by FM-derived priors.

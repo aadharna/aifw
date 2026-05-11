@@ -1,0 +1,725 @@
+\documentclass[10pt]{article}
+\PassOptionsToPackage{sort&compress}{natbib}
+\usepackage{include/aifindsarticle}
+
+% Optional math commands from https://github.com/goodfeli/dlbook_notation.
+\input{include/math_commands.tex}
+
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{xurl}
+\usepackage[normalem]{ulem}
+\usepackage[final]{microtype}
+\usepackage[framemethod=default]{mdframed}
+\usepackage{cleveref}
+\usepackage{subcaption}
+\usepackage{pythonhighlight}
+% \usepackage{lineno}
+% \linenumbers
+
+\emergencystretch=1.5em
+
+\pdfstringdefDisableCommands{%
+  \def\citep#1{}%
+  \def\citet#1{}%
+  \def\citealp#1{}%
+  \def\citeauthor#1{}%
+  \def\citeyear#1{}%
+  \def\citeyearpar#1{}%
+  \def\textsuperscript#1{ #1}%
+}
+
+\title{AI Finds A Way}
+\author{Aaron Dharna\textsuperscript{1,2,*}, Cong Lu\textsuperscript{1,2,6}\footnote[2]{Current affiliation, work primarily done at UBC and the Vector Institute}, 
+Ryan Sullivan\textsuperscript{1,2},\\ 
+Joel Lehman\textsuperscript{3}, Victoria Krakovna\textsuperscript{4}, Jeff Clune\textsuperscript{1,2,5,6\textdagger,*}}
+\plainauthors{Aaron Dharna, Cong Lu, 
+Ryan Sullivan, 
+Joel Lehman, Victoria Krakovna, Jeff Clune}
+\affiliations{\textsuperscript{1}\,University of British Columbia \enspace
+\textsuperscript{2}\,Vector Institute \enspace
+\textsuperscript{3}\,University of Oxford \\
+\textsuperscript{4}\,Google DeepMind \enspace
+\textsuperscript{5}\,Canada CIFAR AI Chair \enspace
+\textsuperscript{6}\,Recursive \enspace}
+\correspondence{aadharna@gmail.com, jclune@gmail.com}
+\date{}
+
+\newcommand{\fix}{\marginpar{FIX}}
+\newcommand{\new}{\marginpar{NEW}}
+
+\newcommand{\jc}[1]{\textcolor{green}{JC: {#1}}}
+\newcommand{\jcsout}[1]{\textcolor{green}{JC: \sout{#1}}}
+\newcommand{\ad}[1]{\textcolor{blue}{AD: {#1}}}
+\newcommand{\adsout}[1]{\textcolor{blue}{AD: \sout{#1}}}
+\newcommand{\cl}[1]{\textcolor{red}{CL: {#1}}}
+\newcommand{\clout}[1]{\textcolor{red}{CL: \sout{#1}}}
+\newcommand{\rps}[1]{\textcolor{orange}{RPS: {#1}}}
+\newcommand{\rpssout}[1]{\textcolor{orange}{RPS: \sout{#1}}}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Artificial Intelligence (AI) algorithms frequently learn creative and unexpected solutions, surprising even expert researchers who develop and study them.
+They often astonish practitioners by discovering unanticipated behavior, exploiting loopholes in reward signals, or spontaneously uncovering previously unknown scientific phenomena.
+However, accounts of such unconventional behavior across machine learning are seldom formally documented; instead, they circulate primarily as informal cautionary tales or amusing anecdotes amongst AI researchers.
+This work presents 26 curated firsthand anecdotes from various machine learning subfields representing the work of over 100 researchers.
+It includes algorithms devising seemingly impossible quantum optics experiments,
+bypassing human oversight on physical manipulation tasks, seeking out in-game drug-induced hallucinations to feign success in video games, and more.
+These anecdotes showcase the capability of modern AI systems to circumvent human-imposed design limitations and discover unexpected solutions to the tasks we train them on.
+Furthermore, these accounts are particularly important for the safety of future AI systems.
+They illustrate the fundamental challenge of aligning models with human values without diminishing their creativity, so they can make surprising discoveries without producing surprising, potentially harmful outcomes.
+The paper first details instances of AI achieving superhuman success through reinforcement learning across many challenging domains. 
+However, we show how reward-driven optimization can fail when the model learns to hack an underspecified reward or unarticulated constraint.
+We then present case studies suggesting that harnessing internet-scale foundation models (FMs) has not resolved these fundamental challenges and, in fact, can supercharge existing failure modes.
+Nevertheless, we argue that when channeled through well-scoped objectives, rigorous verification, and human-in-the-loop scientific judgment, these same learning dynamics can be harnessed to accelerate scientific discovery.
+Finally, we hope this work provides a consolidated resource to inform future research and demonstrates that the tendency toward unexpected behaviors
+is commonplace in modern AI, highlighting the need to anticipate and manage AI's capacity for innovative, yet unpredictable, solutions.
+\end{abstract}
+
+\section{Introduction}
+
+As the character Dr. Malcolm warns in Jurassic Park, ``Life finds a way.'' 
+We can extrapolate this lesson to artificial intelligence (AI): AI too finds a way.
+Despite our attempts to try to control AI learning algorithms, they often find a way to circumvent our constraints or game the system~\citep{lehman2018surprising}. 
+Even when we ask them to be creative and make innovations, AI systems frequently discover solutions that astonish even the researchers who develop and study them~\citep{lehman2018surprising}.
+For example, deep reinforcement learning~\citep{mnih2015human, sutton2018reinforcement} agents routinely uncover exploits and loopholes in reward functions~\citep{amodei2016concrete};
+large language models~\citep{openai_gpt3.5, claude3family, comanici2025gemini} can manipulate labeling systems to maximize perceived performance~\citep{pourcel2024acesgeneratingdiverseprogramming};
+and automated scientific discovery algorithms have proposed experiments initially dismissed as impossible but later validated~\citep{KrennEntangle2017}. 
+
+Despite the prevalence of surprising discoveries across various machine learning (ML) subfields---including but not limited to deep learning~\citep{Goodfellow2016deeplearning}, reinforcement learning~\citep{sutton2018reinforcement}, natural language processing~\citep{jm3nlpbook}, evolutionary computation~\citep{lehman2018surprising}, and AI for science~\citep{Wang2023ai4science}---these and similar anecdotes often remain informally circulated rather than formally documented as case studies.
+Such accounts in the artificial life and evolutionary computation fields, where artificial evolutionary algorithms routinely upended researcher expectations or revealed unanticipated system constraints, were primarily shared informally before being collected by \citet{lehman2018surprising}. 
+We build on \citet{lehman2018surprising} by collecting important ML anecdotes in one place, including capturing important anecdotes from papers, interviews, blog posts, and gathering new anecdotes and/or details about them. 
+Ultimately, this work serves as a sequel to \citet{lehman2018surprising}, expanding its scope to additional subfields of AI and highlighting their underlying lessons for the broader research community while verifying the historical accuracy of the anecdotes contained herein. 
+Through documenting and analyzing these unexpected outcomes, this paper provides a foundational resource for researchers and offers a more rigorous understanding of AI's creative and exploitative potentials.
+
+We illuminate the depth of creativity that modern AI can exhibit while highlighting potential risks and unintended consequences in its deployment.
+These accounts hold significant implications beyond mere novelty.
+If AI can circumvent guardrails in creative ways, we cannot guarantee its safe deployment.
+Recognizing that surprising creativity is not merely an isolated artifact of evolutionary computation---as focused on by \citet{lehman2018surprising}---but rather a broader characteristic of complex learning-based systems positions us to better anticipate, understand, and guide the development of AI technologies.
+
+The next sections present 26 curated anecdotes representing the work of over 100 researchers.
+Most of the accounts (16/26) collected here are newly documented and recounted firsthand by the scientists themselves. 
+The remainder were harvested from public descriptions by the authors (e.g., public interviews or scientific publications); in some cases, we communicated with the authors to clarify or obtain new details.
+Direct quotes from the researchers are placed in block quotes to make clear which words are theirs.
+Unless otherwise stated, block quotes come from text the authors sent us or are quotes from public interviews or publications (for public material, we provide a citation to the source). SI \Cref{appx:breakdown} lists the source of each anecdote. 
+Additionally, we have established a repository for these anecdotes and future ones. We invite readers to submit future anecdotes you may have to \url{www.github.com/aadharna/aifw}.
+
+We do not attempt to catalogue every publicized example of alarming AI behavior or capabilities.
+While we do provide one such example in \Cref{sec:gptcaptcha}, in general, highly staged and/or scaffolded demonstrations in which an AI system is given a test designed to evaluate whether it will resort to manipulative or coercive behavior, such as threatening or blackmailing a person, are mostly outside the scope of this collection. 
+For example, such behavior includes instances where a model engaged in insider trading and attempted subsequent cover-ups when placed in a simulated corporate environment and instructed to act like a stock trader~\citep{scheurer2024largelanguagemodelsstrategically}.
+These behaviors are being actively studied~\citep{hubinger2024sleeperagentstrainingdeceptive, vanderweij2025aisandbagginglanguagemodels, lynch2025agentic, greenblatt2024alignmentfakinglargelanguage, meinke2025frontiermodelscapableincontext, hopman2026evaluatingunderstandingschemingpropensity}, and such cases matter for broader AI safety discussions~\citep{Bengio2024risk}. 
+Writ large, however, we focus on anecdotes where surprising behaviors emerged while pursuing research objectives unrelated to evaluating those specific behaviors.
+
+In reviewing the anecdotes, we clustered them into five somewhat overlapping categories. 
+The work is thus structured around the following core observations:
+AI that learns to interact with the world, in particular via reinforcement learning but also search more generally, can create new knowledge, discoveries, and improvements above and beyond current human knowledge (\Cref{superhuman}).
+However, single-mindedly optimizing objectives can have unexpected effects.
+AI can game a training signal and learn a solution that satisfies the letter of the task, but does not solve the task as desired (\Cref{rewardHacking}). 
+Additionally, the model can learn to break the intended constraints of its training environment, leading to behaviors that developers thought were impossible (\Cref{breakingOut}). 
+As a result, ML methods often give you what you \textit{asked for} but not what you wanted, and find solutions that violate the spirit of the task in surprising ways.
+Furthermore, in the modern era of powerful generative AI models, these aforementioned failure modes do not disappear. In fact, these pathologies can be supercharged by the emergent capabilities of modern AI models (\Cref{llmSection}).
+While optimization can exploit imprecise objectives or constraints in risky ways, this same tendency can also be harnessed for discovery. 
+By proposing surprising but empirically testable hypotheses, mechanisms, and designs, researchers can filter these unexpected outputs into credible candidates for experimentation, ultimately utilizing AI's propensity to be creative to accelerate scientific progress (\Cref{aiscience}).
+\Cref{sec:discussion} highlights shared threads from the prior chapters, connects these lessons to broader research directions in AI, and discusses the potential ramifications of deploying AI technology with these capabilities.
+
+\section{Background}
+\label{sec:background}
+
+Many algorithms in the field of AI operate by identifying complex patterns and correlations within vast datasets.
+The primary class of machine learning algorithms focused on by the community as a whole, as well as in this manuscript, is deep learning~\citep{Goodfellow2016deeplearning, bishop2007, probmlBookMurphy}.
+Deep learning utilizes artificial neural networks which are computational structures loosely inspired by the human brain and characterized by multiple layers of interconnected processing units.
+These networks excel at learning hierarchical representations directly from raw data~\citep{yosinski2014transferablefeaturesdeepneural, Goodfellow2016deeplearning}.
+Given sufficient data (e.g., millions of images, vast amounts of text, or extensive game logs), deep learning models can automatically discover intricate patterns necessary for tasks like classifying images with high accuracy~\citep{krizhevsky2012imagenet, simonyan2015deepconvolutionalnetworkslargescale, he2015deepresiduallearningimage}, understanding and generating human language~\citep{brown2020languagemodelsfewshotlearners, devlin2019bertpretrainingdeepbidirectional, vaswani2023attentionneed}, or recognizing speech~\citep{hintonSpeech2012, gravesspeech2014}. 
+Much of the success of deep learning in these fields comes from the expansive nature of the datasets used to train the models, such as training on all data available on the internet.
+
+While most original, canonical deep learning models were trained with supervised learning (passively mapping inputs to outputs), many of the anecdotes we collect here arise from interactive algorithms that learn through trial and error, of which reinforcement learning is a prime example.
+Reinforcement learning involves an agent learning to maximize a numerical reward signal within an environment via repeated trial-and-error experimentation on the task~\citep{sutton2018reinforcement}.
+For example, a home cleaning robot might learn to put away a mug by receiving positive rewards for actions that bring it closer to a goal, such as placing it in a sink, and negative rewards for failures like breaking the mug. 
+Whether the goal is to clean the house, win in chess (getting a score of +1) or to get a high score in Atari~\citep{mnih2015human} games, the agent's objective is to learn a policy that maximizes long-term cumulative reward.
+Agents trained in this way have been at the heart of many examples of superhuman performance in board and video games, as measured against top professionals~\citep{silver2017mastering, Vinyals2019Alphastar, openai2019dota2largescale, bakhtin2022masteringgamenopressdiplomacy, BrownLibratus2017, wurman2022outracing}. 
+Deep reinforcement learning (DRL) served as the engine for these successes, combining reinforcement learning's trial-and-error learning and sequential decision-making with deep learning's pattern recognition to associate high reward with certain actions and/or states observed by the model.
+More generally, DRL has enabled agents to master environments ranging from robotic control~\citep{levine2016end} to atmospheric balloon navigation~\citep{schuler2025seasonalstationkeepingshortduration, bellemare2020balloonnavigation}.
+As we will see in \Cref{superhuman}, these successes showcase how RL can master complex strategic thinking, long-term planning, and even natural-language negotiation.
+
+Recently, the field has seen the development of powerful foundation models (FMs) that are trained via supervised learning on vast amounts of internet data, then taught specialized competencies like math and coding with reinforcement learning~\citep{wen2025reinforcementlearningverifiablerewards, deepseekai2025deepseekv3technicalreport, su2025crossingrewardbridgeexpanding, chen2021evaluatinglargelanguagemodels}. 
+The scale of these models and breadth of training data have led to the emergence of novel behaviors and capabilities that were not explicitly programmed or anticipated~\citep{comanici2025gemini, openai_gpt3.5, claude3family, grattafiori2024llama3herdmodels}.
+Furthermore, FMs can synthesize and generate new information from their training data, allowing them to solve problems in surprising ways~\citep{brown2020languagemodelsfewshotlearners, perez2022discoveringlanguagemodelbehaviors}.
+However, this development has not been without its share of unexpected outcomes, and the very complexity that gives FMs their power can also lead to unforeseen failure modes.
+
+Models trained with RL are exceptionally prone to discovering behaviors that hack the objective and break developer-imposed constraints~\citep{wang2022adversarial, amodei2016concrete, specgamingkrakovna2020}.
+These surprising behaviors often arise from the tension between a human designer's implicit goals (e.g., clean the house and place everything where it belongs) and an agent's explicit objective of maximizing its reward function (e.g., minimize visible clutter---which could lead the robot to hide items in the wrong cabinets and under tables).
+Many of the anecdotes we present (starting in \Cref{rewardHacking}) arise where powerful learners are given objectives that only imperfectly capture human intent or are improperly specified.
+While such misalignment might be merely inconvenient in a domestic setting, the implications become alarming as the scope of deployment widens, including in safety- and mission-critical applications such as fusion reactor control~\citep{Degrave2022tokamak}, as will be discussed in \Cref{aiscience}. 
+For now, though, we begin our tour of surprising behavior in perhaps the most familiar setting for AI: games, where AI systems have long surpassed the best humans.
+
+\section{Superhuman and Optimal Performance}
+\label{superhuman}
+
+Reinforcement learning (RL) and search-based algorithms have surpassed the highest levels of human performance in games like Go~\citep{Silver2016} and chess~\citep{Campbell2002deepblue, silver2018general}.
+The true surprise of this era, however, was not that the algorithms solved many of the tasks they were trained on, but the specific nature of their victories: they discarded established human strategies~\citep{BrownLibratus2017, silver2018general, wurman2022outracing}.
+Furthermore, they yielded novel ideas that have changed how expert communities approach these games~\citep{leelazero, Shin2023Go}.
+Algorithmic discovery of genuine novelty is the thread running through the anecdotes that follow: machines began not just to dominate domains once thought to be the exclusive province of human reasoning, but to enrich those domains with ideas no human had produced. 
+
+Deep RL-trained agents have consistently discovered new and unexpected strategies, expanding the boundaries of optimal play~\citep{BrownLibratus2017, silver2018general, wurman2022outracing}.
+In Go, AlphaGo~\citep{Silver2016} played the now-famous ``Move 37''---a stone placement that defied centuries of conventional wisdom, opening up new parts of the strategy space to the people who play and study Go~\citep{Shin2023Go, Silver2016}. 
+In imperfect-information games such as heads-up poker, where players know only their own cards and must reason about the state of other players' hands, Libratus~\citep{Brown2018headsup} outplayed champion poker players in 2017 using aggressive ``overbets'' that were not at the time part of top-tier poker play.
+This strategy was later extended by Pluribus~\citep{brown2019superhuman}, another poker bot that cleared the hurdle of multi-agent complexity by defeating professionals in six-player no-limit Texas Hold'em. 
+We will explore AlphaGo and Libratus further in \Cref{sec:alphago} and \Cref{sec:libratus} respectively.
+Beyond the turn-based nature of board and card games, the post-2015 era, ushered in by the development of Deep Q-Networks~\citep{mnih2015human}, saw RL pushed to its upper limits in real-time, high-dimensional strategy games:
+OpenAI Five~\citep{openai2019dota2largescale} and AlphaStar~\citep{Vinyals2019Alphastar} demonstrated proficiency in the complex computer games of Dota 2 and StarCraft II, respectively. And again, RL algorithms continued to challenge top human players.
+Crucially, this capability for discovery extends beyond games to real-world problems.
+RL-trained models have optimized datacenters~\citep{luo2022controllingcommercialcoolingsystems}, controlled plasma in fusion reactors~\citep{Degrave2022tokamak}, and accelerated the design of computer chips~\citep{mirhoseini2021tpudesign}.
+
+As mentioned earlier, the anecdotes in this paper bear directly on a debate currently active around large language models, but applicable more broadly across machine learning: can AI generate truly new knowledge~\citep{si2024llmsgeneratenovelresearch}, or is a trained model limited to interpolating between points in its training distribution~\citep{Gorban2018Interpolating, balestriero2021learninghighdimensionamounts}?
+The examples collected herein suggest that, at least for reward-driven algorithms, the answer is that AI can be creative and invent new knowledge, i.e., RL does not merely reproduce known play more efficiently.
+By rewarding strategies that yield high returns even when they lack human precedent, these methods permit the discovery of genuinely superhuman insights.
+Their creativity, however, can just as easily be turned toward solutions that satisfy the letter of a reward definition while violating its spirit, which is the subject of the rest of this paper after \Cref{superhuman}'s focus on superhuman capabilities.
+Because the same optimization process drives both paradigm-shifting breakthroughs and pathological exploits and is currently being applied to many avenues of scientific inquiry (discussed further in \Cref{aiscience}), determining how to reliably and safely elicit superhuman discovery across all areas of study may well be the defining challenge of our era.
+
+We begin \Cref{superhuman}'s anecdotes with a deeper dive into AlphaGo's landmark matches against Lee Sedol.
+Go had long been a grand challenge for AI, and next we hear first-hand accounts from when DeepMind showed the world that Go-playing agents trained with DRL could challenge long-held human strategies and come out on top.
+
+\input{stories/superhuman/move_37}
+
+Lanctot's vision of humans learning from superhuman AI is already beginning to take shape. 
+As mentioned by Lanctot, AlphaGo's unconventional strategies have transformed how Go is played and understood, with human players improving by breaking away from traditional strategies~\citep{Shin2023Go}. 
+Furthermore, learning from superhuman models is more accessible than ever, as models can now justify their actions, explaining their reasoning in English~\citep{ma2026mixingexpertknowledgebring}.
+When we better understand the surprising actions of superhuman models, perhaps this can accelerate our own learning.
+
+% Before Libratus
+The next anecdote shifts from a fully observable board game to high-stakes professional poker, where strategic innovation unfolds amid hidden information, bluffing, and reading player intent rather than on an open board. 
+
+\input{stories/superhuman/libratus}
+
+Libratus defeated top poker players in the world by challenging long-standing human habits and showing that, once an AI system is strong enough, it will exploit patterns in human expectations just as readily as patterns in the game dynamics.
+Learning to play poker required (implicitly) modeling other players in addition to game dynamics, but communication between the players is limited to bet sizing and timing. 
+A game that reflects additional avenues of communication and planning is Diplomacy, a multiplayer social-strategy board game, where language and trust are part of the strategy space. The next section describes systems that play variants of Diplomacy at superhuman levels.
+
+\input{stories/superhuman/diplomacy}
+
+
+Cicero and Diplodocus each learned to exploit various aspects of Diplomacy.
+In both cases, though, these reinforcement-learning-trained models
+learned strategies that, while effective, were high-risk: Diplodocus by committing to a strategy that depends on how other players act, and Cicero by taking actions that, if used too many times, can burn an opponent's trust and willingness to work with the agent. 
+
+Part of what makes these strategies surprising is that both systems were trained with substantial human priors, yet still discovered strategies that human experts regarded as unusually risky, showing how RL favors strategies with high long-term expected reward, whereas human decisions under risk often rely on heuristics that give greater weight to worst-case outcomes~\citep{Homma2024riskRL, brandsttter2006, Zhang2014Risk}.
+One consequence of this focus on expected reward is that the learned solutions offer higher expected utility, but leave little margin for adverse outcomes.
+As Zijlstra's comments illustrate, human experts may maintain a wide safety margin to achieve more consistent outcomes, whereas the RL models discover that higher expected utility can be found by operating directly on this margin.
+As seen here (and in \Cref{sec:libratus} with Libratus using overbets), the result is that agents can learn playstyles that appear uncomfortably risky to human experts.
+
+\input{stories/superhuman/foerster_marl}
+
+LOLA rediscovered the foundational game-theoretic algorithm of tit-for-tat~\citep{Axelrod1981gametheory}, while M-FOS independently discovered a solution that human game theorists had only recently identified~\citep{Stewart2013zerodeterminant, Hao2015ZeroDet, Press2012Zerodeterminant}. In a slightly different timeline, the M-FOS~\citep{lu2022modelfreeopponentshaping} discovery could easily have been recorded as a machine-first discovery rather than a rediscovery, as the two were separated by at most a decade, and M-FOS had no prior knowledge of the strategy.
+In essence, the capacity for strategic innovation is not confined to a special set of marquee benchmarks or internet-scale models: even modest RL agents in simple environments can surface ideas that theory is only just beginning to catalog.
+
+
+\subsection{Takeaways}
+
+The superhuman and optimal-performance stories highlight the upside of pointing powerful optimizers and algorithms at well-specified goals: they can uncover strategies and structures that eluded experts for decades or even centuries.
+\Cref{superhuman}'s anecdotes demonstrate examples of agents achieving superhuman performance on narrowly defined tasks. We see that in both AlphaGo (\Cref{sec:alphago}) and M-FOS (\Cref{sec:opponentshaping}), agents are able to rediscover well-known strategies in their respective games. Reward-maximizing agents are even able to invent entirely new strategies that are surprising and counter-intuitive to expert players, as we see in AlphaGo's Move 37 (\Cref{sec:alphago}), Libratus's overbetting strategy (\Cref{sec:libratus}), Diplodocus's subtle approach to signaling intentions (\Cref{sec:diplomacy}), and the unusual Diplomacy strategy of completely abandoning one's home territory (\Cref{sec:diplomacy}).
+These examples provide definitive proof that AI is capable of surpassing human performance on constrained problems, and suggest that some forms of creativity, like innovative strategies, can be invented via straightforward optimization of environment rewards.
+In these histories, the model's creativity led to surprising and effective strategies that expert players and AI researchers did not anticipate.
+
+Indeed, while this section has highlighted the triumphs of deep reinforcement learning---where agents learned to generate surprising, superhuman insights---the focus on these successes can obscure a critical challenge: aligning an algorithm's objective with human intent.
+When the objective captures only a rough proxy for what we actually care about, the same creativity displayed by AlphaGo and Libratus can instead manifest as reward hacking, with agents satisfying the literal objective while violating the spirit of the task~\citep{skalsa2022rewardhacking, specgamingkrakovna2020}.
+
+\section{Reward Hacking}
+
+Reward hacking, also known as specification gaming~\citep{specgamingkrakovna2020}, occurs when an agent discovers an effective but unintended way to obtain reward~\citep{skalsa2022rewardhacking, amodei2016concrete}.
+It often reflects the agent optimizing the objective exactly as specified, while exposing a mismatch between that specification and the behavior its designers intended.
+
+Reward hacking typically falls into two broad, overlapping categories.
+In the first, the reward signal itself is flawed: the agent maximizes the stated objective through behavior that is valid under the scoring rules but inconsistent with the underlying goal.
+In the second, the learning environment is insufficiently constrained: the reward logic may be reasonable, but the agent discovers glitches, omissions, or unintended interactions that allow it to bypass the challenge.
+Addressing the former generally requires revising what the agent is rewarded for, whereas addressing the latter usually requires modifying the learning environment to fix bugs or enforce constraints that were previously left implicit.
+Reflecting this distinction, \Cref{rewardHacking} focuses on the exploitation of reward and score functions, while \Cref{breakingOut} examines cases in which agents exploited bugs in or escaped the intended learning environment.
+Because reward definitions and environmental constraints jointly specify a task, the boundary between these categories is necessarily fuzzy.
+
+\subsection{Exploiting Reward and Score Functions}
+\label{rewardHacking}
+
+As shown in \Cref{superhuman}, reinforcement learning researchers often develop and evaluate their algorithms using games.
+Games are inexpensive to simulate, can often run faster than real time, and provide practical testbeds for cognitive capabilities such as perception, planning, navigation, and multi-agent reasoning~\citep{schaul2011measuringintelligencegames}.
+Moreover, many games are carefully refined over years to guide human skill acquisition through their mechanics, balance, feedback, and scoring systems~\citep{jaccardcolabgamedev, gee2003video, Plass2015gamelearning}, making them appealing testbeds precisely because they are designed to elicit and reward complex behaviors in humans that we would also like artificial agents to learn.
+
+Yet a game designed to teach and reward human players does not necessarily provide an effective learning signal for an RL agent.
+Researchers therefore often alter the game's observations, action space, or reward structure when converting it into a learning environment~\citep{yannakakis2025artificial}.
+In particular, they may introduce shaping or scaffolding rewards that provide intermediate feedback for acquiring useful skills~\citep{ibrahim2024comprehensiveoverviewrewardengineering}.
+These modifications can make a task that is otherwise intractable for an AI agent learnable, but they also replace the true objective with a proxy.
+Because defining a reward function that faithfully captures human intent is notoriously difficult~\citep{christian2020alignment}, that proxy may create opportunities for exploitation~\citep{pan2022effectsrewardmisspecificationmapping, amodei2016concrete}.
+
+Consider the NetHack Learning Environment (NLE;~\citealp{kuttler2020nethacklearningenvironment}), an interface for training reinforcement learning agents to play \textit{NetHack}, a dungeon-crawling roguelike first released in 1987 and played by entering text commands into the terminal.
+The ultimate goal of \textit{NetHack} is ``Ascension'': reaching the bottom of a procedurally generated dungeon, retrieving a sacred amulet, and then returning to the surface.
+Achieving this requires navigating a maze filled with monsters, traps, and puzzles while carefully managing the player character's health, hunger, equipment, and inventory.
+The game demands exploration, long-term planning, skill acquisition, and language-conditioned reasoning~\citep{zhang2020beboldexplorationboundaryexplored, zhong2022silgmultienvironmentsymbolicinteractive, hambro2022insightsneurips2021nethack}, making it notoriously difficult for learning agents~\citep{hambro2022insightsneurips2021nethack}.
+
+Although Ascension is easy to detect, it is so rare that rewarding it alone provides no usable learning signal~\citep{kuttler2020nethacklearningenvironment}.
+NLE agents are therefore commonly trained using game score, which rewards intermediate accomplishments such as killing monsters, collecting gold, and descending through the dungeon.
+During the NeurIPS 2021 NetHack Challenge~\citep{hambro2022insightsneurips2021nethack}, however, many high-scoring agents learned to ``camp'' in early dungeon levels and repeatedly kill monsters rather than progressing towards the game's actual goal of Ascension.
+They successfully optimized the available score while neglecting the achievement that score was intended to encourage.
+
+The agents did not know that this behavior was undesirable; they were simply maximizing the feedback provided to them.
+The failure lay in using game score as an imperfect substitute for progress toward Ascension.
+This is an instance of Goodhart's Law~\citep{goodhart1984problems}, commonly summarized as ``when a measure becomes a target, it ceases to be a good measure.''
+In AI training, such proxies are often unavoidable because the true objective may be too sparse to optimize directly---as in navigating a research project toward a successful breakthrough, or Ascending in \textit{NetHack}---or too difficult to specify precisely, as with maintaining an appropriately polite conversational tone.
+The difficulty is therefore not merely to construct an objective that produces a learning signal, but to construct one whose optimization continues to induce the intended behavior.
+
+Shaping rewards are particularly vulnerable to this problem.
+Rewards introduced to encourage exploration, skill acquisition, or intermediate progress can alter the optimal behavior on the task when they are not aligned with its ultimate objective~\citep{NgPolicyInvariance1999}.
+Agents may then discover creative strategies that perform well under the modified objective but poorly under the designer's actual criterion of success~\citep{pan2022effectsrewardmisspecificationmapping, specgamingkrakovna2020, amodei2016concrete}.
+Such failures typically force researchers to revise the proxy, reconsider the task formulation, or identify additional constraints needed to rule out the exploit. 
+In fact, we will see one such example in the \textit{NetHack} domain in \Cref{sec:motif}. 
+But first, we begin with a straightforward example of this phenomenon in an Atari boat-racing game in \Cref{sec:boatracing}.
+
+\input{stories/reward_hacking/boat_racing}
+
+CoastRunners shows how training agents against a simple reward function can result in the model learning a policy that fails at the game, yet maximizes the reward in unintuitive ways.
+One thing that contributes to the model learning the wrong behavior is that when designing a reward function, researchers have to factor in fine-grained environment dynamics that affect how achievable the reward is.
+For example, rewarding a player for collecting items along a path may seem like a reasonable way to incentivize following that path; but if items respawn, it becomes a trap that rewards the agent for repeatedly collecting items without progressing.
+In CoastRunners, if the pylons were laid out in a slightly different manner or the racetrack did not have a lagoon, would the model have learned to go in circles forever? Likely not.
+In essence, the lesson is that one cannot just analyze the reward function alone; one must also consider the environment in its entirety.
+
+This vulnerability is not limited to simple navigational tasks.
+We see a parallel example in cooperative multi-agent environments, where a team of agents discovers how to exploit a regenerating shield mechanic of their opponents.
+
+\input{stories/reward_hacking/smac_shield_regen}
+
+While not what the researchers wanted, their RL algorithms did exactly as they were tasked to do, maximizing their scores when fighting the Protoss enemies.
+We will return to SMAC experiments later in \Cref{breakingOut} to see how once the shield-regeneration exploit was patched, the RL agents then managed to break the simulator itself.
+
+Given that trained models can so easily exploit score functions, and that humans can recognize when behavior like lagoon-circling or letting enemy shields regenerate is not desired, a natural response is to put a person in the loop and let them judge success directly.
+We next visit a robotic claw manipulation experiment that tests that claim and shows that once human perception and judgment become the reward signal, optimization can lead the model to deceptively shape what that person sees rather than learn the intended capability.
+
+\input{stories/reward_hacking/claw_rlhf}
+
+While the grasping example highlights a failure in human perception that the model was able to exploit, the challenge of reward hacking becomes even more complex when the evaluator is not a human, but another machine. 
+Even if human feedback were not hackable, collecting this feedback at every timestep would be expensive and time-consuming, so some systems automatically generate learning opportunities from competitive dynamics between agents~\citep{foerster2018learningopponentlearningawareness, leibo2019autocurriculaemergenceinnovationsocial}.
+This shift from human-in-the-loop to multi-agent training introduces a new vulnerability: collusion between the learned models.
+Our next anecdote illustrates how, in a multi-agent setting, shared incentives can encourage subsystems to coordinate to maximize the reward at the expense of true learning, effectively gaming the evaluation metric.
+
+\input{stories/reward_hacking/online_paired}
+
+In PAIRED, the adversary is supposed to generate a task that fairly evaluates the antagonist and protagonist, but the adversary is incentivized to help the antagonist succeed. When the adversary learns the identity of the antagonist, it begins to produce trivial tasks for its partner while assigning impossible challenges to the protagonist.
+Therefore, if a reward function is built upon collaboration between multiple agents, and if agents can identify each other, then they can turn collaboration into collusion~\citep{cui2023adversarial}.
+
+Our next anecdote provides an example of collusion surprisingly arising in a supervised learning problem that attempts to transfer the style of one image to another.
+
+\input{stories/reward_hacking/cyclegan}
+
+The next example returns to reinforcement learning, but with a twist: instead of the model chasing points in a game as defined by a person, the AI is driven by a form of ``intrinsic curiosity,'' seeking out new and unfamiliar sights.
+However, defining a reward based on the AI's own past experience allows it to hack its own sense of curiosity. 
+
+\input{stories/reward_hacking/pokemon_static}
+
+The Pokemon agent's flower-watching is a classic instance of the ``noisy TV''~\citep{fortunato2017noisy} problem, where an agent becomes trapped by continually unexpected stimuli that satisfy the letter of a novelty requirement without serving its spirit.
+In this instance, the flower-watching trap only exists because of the alignment of three factors: a reward function that prioritizes novelty, an environment containing stochastic animations, and an agent that directly observes low-level pixel data.
+If, for example, the agent processed higher-level semantic information as observations (e.g., just being able to detect that flowers were present but not their precise shape/color), this specific type of hacking would not happen. However, that solution may merely shift the noisy TV effect to a higher level of representation, as the agent seeks out new ways to trigger novelty within its refined observation space. Despite these concerns, agents will likely need this inquisitive nature to solve hard exploration problems~\citep{Ecoffet2021firstreturngoexplore}.
+In this case, the unending novelty reward was driven by something very clear and obvious (simple environmental noise caused continuously unique observations), allowing system designers to easily find a solution. 
+But in the future, as research targets increasingly complex problems, it will likely become harder to determine which environment features are piquing an agent's intrinsic curiosity.
+
+\subsubsection{Takeaways}
+
+Overall, agents tasked with maximizing a fixed objective often satisfy the task as defined but not the task as intended by researchers.
+The examples in \Cref{rewardHacking} demonstrate reward hacking
+where an AI agent achieves its goal by exploiting a flaw in its objective function.
+This occurs when the AI correctly optimizes a proxy reward function or a simplified measure of success that we later realize was poorly designed, leading to an outcome that is technically correct but misaligned with the designer's true intent. 
+One may be tempted to blame the designer of the reward function, but most experienced AI developers and researchers have learned to expect that most reward functions have exploitable loopholes. 
+Consequently, newly designed objectives require rigorous iterative testing and should remain untrusted even after extensive experimentation.
+These anecdotes highlight how reward hacking can be a complex phenomenon resulting from the interaction of the objective with specific environment characteristics (\Cref{sec:boatracing}, \Cref{sec:smacshield}), observation encoding (\Cref{sec:claw}, \Cref{sec:pokemon}), and the agent's action spaces (\Cref{sec:paired}, \Cref{sec:cyclegan}).
+These issues are also not limited to reinforcement learning and can occur in any objective-maximizing system (\Cref{sec:cyclegan}). 
+
+\subsection{Exploiting Environmental Weaknesses}
+\label{breakingOut}
+
+As scientists and designers, we often assume that models will approach a task in roughly the same way a human would.
+This can lead us to leave constraints implicit rather than encoding them directly into an experimental domain.
+Learning environments are typically simplified implementations of the tasks they represent, and their physics, rules, and interfaces capture only the behaviors that designers anticipated and chose to enforce.
+While human players may naturally respect additional constraints through common sense, physical intuition, or familiarity with the task, an AI agent is bound only by what is actually implemented.
+As a result, it may discover states or interactions that violate the designer's assumptions but remain possible within the environment.
+
+In the preceding examples, agents exploited imprecise proxies while remaining within the intended mechanics of the environment: they subverted what the objective was meant to reward.
+The examples in this subsection instead concern agents that pursue the specified objective by exploiting weaknesses in the learning environment.
+Here, the objective may accurately represent the desired outcome, but flaws or omissions in the environment allow the agent to achieve the goal through unintended means.
+
+Our first example involves a hide-and-seek domain in which the drive to win leads agents to uncover unexpected weaknesses in the simulator's physics setup and implementation.
+
+
+\input{stories/breaking_constraints/hide_and_seek}
+
+The hide-and-seek agents repeatedly found new and unexpected ways to exploit bugs in the physics simulator.
+However, the designers wanted the agents to come up with creative and interesting strategies similar to those that a human might try while playing the game (i.e., without exploiting flaws in the physics engine). 
+The agents repeatedly finding new exploits shows why environment design is often an iterative process. 
+The next anecdote shows how surprises emerge when agents bypass human-authored guardrails meant to define sensible behavior.
+
+\input{stories/breaking_constraints/PPGA}
+
+The environment that was exploited in \Cref{sec:hideseek} and \Cref{sec:ppga} was a hand-engineered physics engine, with the agent exploiting bugs in that human-authored code.
+Increasingly, though, rather than being hand-authored, the environment is itself a learned model: a neural simulator trained to mimic some underlying game or process of physical transformation, and then treated as if it were the real thing~\citep{ha2018world, bruce2024genie, hafner2024masteringdiversedomainsworld, parkerholder2024genie2}.
+The next anecdote explores what happens when we train a controller entirely inside such a learned world model, and an optimizer starts pushing not just on a task but on the quirks and blind spots of the model that defines reality for it.
+When those models become part of the training loop, their blind spots effectively become new laws of physics for the agent to exploit.
+
+
+\input{stories/breaking_constraints/world_models_ha}
+
+When the environment is a world model, the agent optimizes against the quirks of a neural network. 
+In a full game stack, however, the environment is a collection of disparate systems---physics, AI-controlled NPCs, and scoring heuristics---all operating in tandem. 
+This complexity increases the surface area for exploitation. 
+
+\input{stories/breaking_constraints/smac_handoff}
+
+\citet{samvelyan2019starcraftmultiagentchallenge} addressed this handoff of control by modifying the environment's boundary logic to prevent the built-in game-AI from intervening.
+Had they instead addressed this by penalizing the RL agent when the game-AI took over, this behavior would be considered hacking the reward function's definition and appear in \Cref{rewardHacking}.
+
+However, this structural exploit highlights a deeper issue in environment design: RL algorithms do not differentiate between engaging with the simulation and exploiting artifacts of its software wrapper.
+By learning a simple policy (moving out of bounds) that triggers a fallback script, the agents bypassed combat entirely.
+This demonstrates that an optimization process will seamlessly incorporate the surrounding architecture into its policy if it provides an easier path to higher returns than navigating the complexity of the intended task.
+In this case, solving the task as desired required multiple independent RL agents to learn both precise unit micromanagement commands and multi-agent coordination strategies to defeat the opposing team, both of which are more difficult than simply exiting the combat area.
+
+Up to this point, all of the constraints AI managed to violate were inside software systems---simulators, learned models, reward functions, and game engines---whose assumptions we made and could, at least in principle, patch. 
+But optimization does not care where the boundary between the system and its surroundings is drawn, or whether the environment is a simulation or some aspect of the real world.
+The next anecdote comes from evolvable hardware, where the search process was turned loose on a reconfigurable circuit in the real world and promptly discovered that the ambient lab environment itself is another resource to be recruited into the solution.
+
+\input{stories/breaking_constraints/evolved_radio}
+
+In essence, once an optimizer is exposed to the real world, anything that can influence its objective---wiring, ambient signals, lab conditions, humans---can become part of the effective environment.
+In such a rich environment, the exploitable pain points are even harder to predict and diagnose. Therefore, deploying learning systems into the unpredictable complexity of the real world must be done with great care and constant vigilance. 
+
+The final anecdote in this section shifts from exploiting physical phenomena in a lab to exploiting social infrastructure and asks what it means to contain a system once people and external services are accessible to an AI system.
+
+\input{stories/breaking_constraints/gpt4_hires_with_help}
+ 
+Although, in this case, the handoff to other people was heavily engineered with a human suggesting and facilitating actions, the anecdote shows how quickly the boundary of the system expands once outside tools and people are available.
+Therefore, it is vital that we think about and plan for a world of more capable agents that have the potential to exploit people and the world's systems around them.
+Furthermore, no matter what other sandboxing or constraints it has, an AI system that can interact with humans has the potential to have tremendous agency, influence, and power in the world if it can convince those humans to take actions on its behalf.
+
+\subsubsection{Takeaways}
+
+The anecdotes in \Cref{breakingOut} reveal that optimization pressure does not respect the nominal boundaries of a task; instead, it can potentially exploit every available degree of freedom in the system's environment.
+Whether by taking advantage of bugs in a hand-engineered physics engine to ``surf'' boxes (\Cref{sec:hideseek}), exploring unusual walking gaits when typical task reset conditions are removed (\Cref{sec:ppga}), or finding blind spots in a learned generative model (\Cref{sec:worldmodels}), agents treat every quirk of their world as a legitimate resource to exploit.
+This boundary-pushing behavior is not limited to software artifacts; it naturally extends to exploiting scripted subsystems like game AIs (\Cref{sec:smachandoff}), physical phenomena in the lab environment (\Cref{sec:radio}), and even the social infrastructure of human assistance (\Cref{sec:gptcaptcha}).
+These anecdotes suggest that the more capable an optimizer becomes, the less we can rely on typical constraints: if a system can achieve its goal by reaching outside the intended sandbox, it will do so, treating our guardrails not as rules but as just another part of the environment to be mastered.
+
+
+In many different subfields of AI, from NLP to RL to supervised learning and artificial evolution, we see the same phenomenon: models learn to exploit their reward functions and training environments.
+Historically, one might have hoped that these failures were symptoms of ``brittle'' AI---narrow systems lacking the context to understand why their behavior was undesirable. 
+People tend to understand why they are optimizing their objective, and because foundation models (FMs) have been trained on human-generated knowledge, one might have hoped they would also adopt a similar approach to solving problems.
+The next section explores how FMs, despite possessing the ``common sense'' that was previously missing in AI, do not curtail these failure modes. 
+Instead, the FMs often provide the optimizer with a more sophisticated, semantically rich toolkit to supercharge the very types of exploits we have seen thus far.
+
+
+\section{Foundation Models and Large Language Models: General-Purpose Intelligence}
+\label{llmSection}
+
+A recent development in AI is the rise of \textit{foundation models}, particularly \textit{large language models (LLMs)} like GPT-4~\citep{openai2024gpt4}, Llama~\citep{grattafiori2024llama3herdmodels}, Claude~\citep{claude3family}, and Gemini~\citep{comanici2025gemini}. 
+These are massive deep learning models, typically based on the Transformer architecture~\citep{vaswani2023attentionneed}, trained on extremely broad datasets encompassing text and code from the internet, books, and other sources. Unlike specialized models, foundation models are designed to be adaptable to a wide array of downstream tasks with minimal task-specific training, often just through natural language instructions~\citep{brown2020languagemodelsfewshotlearners}. 
+They exhibit remarkable capabilities in text generation, translation, question answering, summarization, coding, and reasoning~\citep{bubeck2023sparksartificialgeneralintelligence}.
+
+Researchers generally expect these models to follow instructions faithfully and generate plausible, relevant outputs based on their training data. However, the scale and the breadth of their training data lead to frequent surprises. LLMs can exhibit \textit{emergent abilities}---capabilities not explicitly trained for and not present in smaller models~\citep{wei2022emergentabilitieslargelanguage}.
+They can sometimes display sophisticated reasoning, strategic planning, or even deceptive behaviors~\citep{park2023generative} that go far beyond simple text completion. 
+The anecdotes presented in this section illustrate how these models can subtly manipulate human evaluators, find unexpected solutions to problems, or exhibit complex social reasoning in simulated environments and even social interactions, challenging our understanding of their true capabilities and limitations.
+\citet{bowman2023thingsknowlargelanguage} provides a recent overview of the challenges in evaluating and understanding these models.
+
+Training agents from scratch on specific, well-defined tasks has proven remarkably successful, yielding superhuman performance in domains like Go, chess, and various robotics tasks~\citep{silver2018general, batra2024proximalpolicygradientarborescence, saycan2022arxiv, singh2019endtoendroboticreinforcementlearning}.
+As seen in previous sections, this approach can lead to surprising and novel results, with agents discovering solutions unforeseen by human experts. 
+However, tabula-rasa methods are computationally intensive to train~\citep{yu2018towardssampleefficient} and usually struggle to generalize beyond a single, narrow task~\citep{sun2020stealthyefficientadversarialattacks, gleave2021adversarialpoliciesattackingdeep}.
+Unlike their blank-slate predecessors, trained agents based on FMs are used precisely because these models internalize a broad spectrum of human knowledge, language, and culture during pre-training~\citep{saycan2022arxiv, zhang2024improvingsampleefficiencyreinforcement} and thus perform and generalize much better, especially out of the box (without task-specific training)~\citep{baker2022video, brohan2023rt2visionlanguageactionmodelstransfer}.
+As a result, incorporating FMs into search and RL processes has seen initial success on traditionally difficult problems~\citep{RomeraParedes2023, alphaproof2024ai, novikov2025alphaevolve}.
+
+This section demonstrates how FMs bring familiar reward hacks to new modalities, exposing new domains to the surprising capabilities of RL. For example, chatbots trained to be helpful or persuasive may become sycophantic, tailoring answers to user beliefs rather than truth~\citep{sharma2025understandingsycophancylanguagemodels, christianoweddingparties}.
+Similarly, FMs can generate complex code that passes unit tests but contains subtle security vulnerabilities~\citep{pearce2021asleepkeyboardassessingsecurity}.
+As in prior anecdotes, the models satisfy an easily measurable proxy (e.g., user approval or passing a test) while circumventing the intent of the task.
+
+This first anecdote of \Cref{llmSection} sits right on the boundary between the earlier RL stories and the foundation-model era, with the earlier reward-hacking pattern reappearing in a system that brings broad priors about human behavior into the loop.
+
+\input{stories/foundation_models/vpt}
+
+VPT shows that rich human-derived priors can improve an agent's ability to navigate a difficult environment. However, greater competence may simply enable an agent to discover new ways of exploiting an imperfect reward function. 
+The next anecdote presents a closely related failure where an RL agent discovered a previously unknown reward hack in the NetHack Learning Environment.
+
+\input{stories/foundation_models/small_motif}
+
+Motif uses a foundation model to shape an RL agent's motivations/rewards; our next anecdote uses a foundation model as an external \emph{evaluator} to judge new solutions.
+Once an FM is both generating candidate solutions and judging them (e.g., for diversity or quality), that evaluator itself becomes part of the environment to optimize against.
+
+\input{stories/foundation_models/aces_llm_code}
+
+In the simple multi-agent system of ACES, the generator managed to hack its labeler to fake its way to success.
+The next anecdote has a similar structure in a different setting: an automated red-teaming system was created to search for prompts that would make a target model produce unsafe responses, but the search ended up exploiting the evaluator used to score those prompts. 
+
+\input{stories/foundation_models/rainbow_teaming}
+
+
+Rainbow Teaming explored how reward models can be exploited; the next anecdote takes this to an extreme, showing how a policy trained against a hackable reward model can collapse into repeating a single, unintended behavior.
+
+\input{stories/foundation_models/wedding_parties}
+
+
+Preserving the capabilities of general-purpose models can be tricky. 
+Developers need to maintain the model's general knowledge base and its ability to produce completions that align with human preferences~\citep{Qiu2026bayesian}, generate safe responses~\citep{samvelyan2024rainbow}, reflect internal uncertainty through calibrated outputs~\citep{kadavath2022languagemodelsmostlyknow}, and keep its claims factually grounded in verifiable sources~\citep{Rahman2026Hallunicnate}.
+
+The wedding-party collapse is an extreme case of a setting where a general-purpose text generation model, steered by a narrow proxy to produce positive text, slides into a single, high-scoring basin of behavior.
+And while, in this case, going off on tangents about wedding parties is harmless, similar failures could be dangerous if the text model were placed into, e.g., a large-scale content moderation role, where a narrow proxy for engagement could cause the model to collapse into a single ideological basin, effectively automating the creation of echo chambers~\citep{perez2022discoveringlanguagemodelbehaviors}.
+
+The last anecdote of \Cref{llmSection} demonstrates how frontier models are increasingly capable of recognizing the artificiality of their constraints.
+These systems can sometimes notice cues that they are being evaluated and reason about why the setup looks artificial. 
+This meta-awareness does not itself show exploitation, but it matters because a model that recognizes an evaluation may behave differently under testing conditions than it would in deployment~\citep{perez2022discoveringlanguagemodelbehaviors, lehman2018surprising}.
+
+\input{stories/foundation_models/claude3}
+
+Claude 3 Opus' comment about the pizza sentence is a weak form of meta-cognition: the model is not just answering the question but is also commenting on the artificiality of the test.
+As agents become extremely capable, they can begin to recognize testing scenarios and modify their responses accordingly, similar to how a human might attempt to play dumb on a test they do not want to pass~\citep{wei2024simplesyntheticdatareduces}.
+As mentioned above, if a model knows it is being tested, it may behave differently than it would in a real-world deployment~\citep{perez2022discoveringlanguagemodelbehaviors}; this suggests that future safety evaluations cannot rely solely on a model's output, but must instead account for the possibility of strategic behavior designed to bypass human-authored guardrails~\citep{vanderweij2025aisandbagginglanguagemodels}.
+
+This meta-reasoning displayed by Claude 3 Opus is reminiscent of an anecdote in \citet{lehman2018surprising} (section 3.1.4) that was discovered by \citet{wilke2001evolution}.
+To study robustness to mutations in evolution and evolutionary algorithms, \citet{wilke2001evolution} attempted to disable any mutations that improved an organism's replication rate. 
+The researchers configured the system to test every mutant in an isolated environment; if a mutant replicated faster than its parent, it was discarded. 
+Despite this constraint, replication rates eventually began to rise. \citet{wilke2001evolution} discovered that the programs had evolved to recognize the specific inputs of the test environment and would play dead by halting all replication while being evaluated in order to bypass the researchers' selection filter.
+
+Unlike Claude 3 Opus, \citeauthor{wilke2001evolution}'s agents did not explicitly narrate their awareness; instead, their understanding of the test was expressed solely through strategic behavioral changes. 
+Some may think that because LLMs reason in natural language, the ability to read these reasoning traces could allow researchers and practitioners to prevent LLMs from taking harmful actions~\citep{guan2025monitoringmonitorability, baker2025monitoringreasoningmodelsmisbehavior, emmons2025chainthoughtnecessarylanguage, hu2023ThoughtCloning}. 
+However, deep neural networks are capable of learning functions that execute during their forward pass but are not understandable solely from the model's output~\citep{nanda2023progress}. 
+Therefore, it is an open question of whether or not the model's chain-of-thought traces can be trusted~\citep{lanham2023measuringfaithfulnesschainofthoughtreasoning, turpin2023languagemodelsdontsay}.
+\citet{korbak2025chain} argue that while chain-of-thought monitoring may be a valuable approach for AI safety, it is fragile and becomes less reliable as RL becomes a more prominent component of LLM training.
+\citet{wilke2001evolution} demonstrate that even non-LLM agents are capable of identifying and circumventing these controls without any form of legible reasoning.
+
+\subsection{Takeaways}
+
+The anecdotes in \Cref{llmSection} show systems that learn to solve tasks by exploiting benchmarks, labels, and even the humans in the loop, just like models did in \Cref{rewardHacking} and \Cref{breakingOut}.
+The integration of foundation models into the optimization loop does not resolve the fundamental problem of reward function hacking or environmental constraint breaking; instead, it shifts the optimization surface from low-level experimental domain-specific artifacts to high-level semantic descriptors and learned models of social heuristics.
+\Cref{llmSection} illustrates that while FMs possess some amount of the common sense previously missing in narrow AI, the models still reward hack. 
+\Cref{sec:vpt} showed how human-derived priors can boost agent capabilities on hard tasks.
+However, this capability acts as a double-edged sword: \Cref{sec:motif} shows that distilling an LLM's common-sense understanding of progress into a reward signal can also enable agents to discover previously unknown reward-hacking strategies.
+Using FMs downstream of another model to judge whether or not the other model's responses are safe, for example, enables learned agents to attack those guardrails and systematically bypass them (\Cref{sec:rainbow}) or even steer the semantic preferences of the upstream model (\Cref{sec:acescodegen}).
+Optimizing a general-purpose model against a proxy reward can collapse the model's breadth of capabilities into a single behavioral mode that scores highly on the proxy yet is undesirable to the practitioner (\Cref{sec:wedding}).
+Taken together, these anecdotes suggest that FMs do not curtail the failure modes discussed so far in this work; they supercharge them, providing the optimizer with a sophisticated understanding of norms and expectations that the model learns to exploit.
+
+Attempts to automate scientific research are not an exception to this pattern. 
+A laboratory, simulator, proof checker, or peer-review pipeline can also become part of the environment an optimizer learns to exploit. 
+The difference is not that scientific settings are immune to gaming, but that the scientific process includes a variety of high-quality corrective mechanisms that, if violated, imply the initial result is invalid: independent replication, mathematical proof, experimental validation, and expert scrutiny. 
+With these checks, the same capacity for abstraction and search that yielded unintended behaviors in prior anecdotes can be redirected toward surfacing hypotheses, experiments, and algorithms that humans would have been unlikely to propose unaided~\citep{alexeev2026primitivesetsvonmangoldt, KrennEntangle2017, novikov2025alphaevolve}. 
+The final section therefore asks what happens when we aim this exploratory capacity at scientific problems while keeping the search grounded enough that surprising outputs can become genuine discoveries rather than just new ways of gaming a metric.
+
+\section{AI for Science}
+\label{aiscience}
+
+Scientific practice, traditionally guided by human intuition and hypotheses, is undergoing a transformation driven by artificial intelligence~\citep{lu2026towards}. 
+Across disciplines such as physics~\citep{carleo2019machine}, biology~\citep{jumper2021highly}, chemistry~\citep{segler2018planning}, and materials science~\citep{butler2018machine}, AI algorithms are routinely deployed to analyze vast datasets, simulate complex phenomena, and generate hypotheses~\citep{Wang2023ai4science}. 
+Beyond passive analysis, AI agents embedded in closed-loop systems can actively search scientific possibility spaces across both physical and formal domains. 
+These systems optimize experimental configurations~\citep{szymanski2023autonomous, Pendleton2019escalate, autoQuantumKrenn2016}, synthesize control policies in multi-agent simulations or directly on robotics hardware~\citep{dharna2025foundationmodelselfplayopenended, codeaspolicies2022}, and generate programs to explore solutions to open mathematical conjectures~\citep{novikov2025alphaevolve, Hubert2025, yang2023leandojotheoremprovingretrievalaugmented}. 
+This progression toward autonomy culminates in frameworks that automate the entire research lifecycle; building on general-purpose foundation models, \citet{lu2024aiscientist} introduced a system that independently designs and executes experiments, and authors complete scientific papers, one of which has already achieved peer-reviewed workshop acceptance~\citep{yamada2025aiscientistv2workshoplevelautomated, lu2026towards}.
+
+For most of the anecdotes so far, the surprising results have been problems that researchers needed to fix and then rerun their experiments. 
+However, in the realm of scientific inquiry, surprise can also be beneficial. 
+There are canonical stories about world-changing medicines discovered by accident, such as penicillin~\citep{Bigger1927penicilin, fleming1929antibacterial}, and as AI methods are applied to more scientific disciplines, similar serendipitous discoveries might become more commonplace, if not the norm~\citep{Wang2023ai4science, lu2024aiscientist, krenn2021conceptual}. 
+AI can thus help generate counterintuitive discoveries that can be tested, falsified, and independently validated~\citep{DeMoss2025Grok}.
+
+At the same time, this paradigm is nascent: today's headline successes rely on careful problem formulation and strong checks (automated verifiers, physical constraints, or experimental validation) to separate genuine surprising discovery from artifacts of data, simulators, or evaluation pipelines~\citep{novikov2025alphaevolve, lu2024aiscientist}.
+Even so, the examples presented in this section (\Cref{aiscience}) illustrate the upside of productive surprise across scientific domains. 
+
+The distinction between productive surprise and dangerous failure becomes critically important as we move from toy domains to physical and institutional reality.  
+As we transfer models to the real world---including digital spaces such as the internet, banking, commerce, media, and other forms of human interaction---the models must obey constraints in order to be safe.
+If models are unable to be safely deployed, we should be careful about handing off full control to automated systems~\citep{Bengio2024risk}. 
+Flaws that are tolerable in simulation can be dangerous in deployed scientific and engineering settings. 
+Our first anecdote shows how an RL controller can expand the design space of fusion control policies, yet also reach for strategies that no cautious engineer would design because they could physically damage the machine.
+
+\input{stories/ai_science/tokamak}
+
+In addition to showing one of the fundamental dynamics of reinforcement learning, this outcome also underscores a fundamental challenge in AI safety: the risk of unexamined priors. 
+When human experts solve a problem, they rely on domain knowledge that is rarely formalized yet invaluable in shaping the solution---for instance, the assumption that a machine should not be operated at its physical breaking point is obvious to a nuclear scientist.
+Because these boundaries are often considered self-evident, they can be unintentionally omitted as explicit constraints when designing an objective to train agents.
+A reinforcement learning agent possesses little common sense, and thus it views the reward function as an absolute mandate, maximizing its score without awareness of unspecified boundaries.
+This creates a category of unknown unknowns where the most critical safety failures often stem not from the rules we get wrong, but from the foundational assumptions we forget to codify.
+
+In the next anecdote, we switch back from the physical world to the digital world, from tokamak control to the space of algorithms and proofs~\citep{Wang2023ai4science, Hubert2025}.
+The authors of the next anecdote consider mathematical problems where the solution is a piece of code that can be edited and then automatically graded on its ability to solve a particular problem.
+A recent family of algorithms~\citep{lehman2022evolutionlargemodels} uses language models to mutate proposed solutions to a problem. 
+By leveraging internet-scale pretraining on text and code, the LLM makes domain-aware structural edits that explore entire functional concepts~\citep{hemberg2024evolvingcodelargelanguage}.
+
+\input{stories/ai_science/funsearch}
+
+The success of FunSearch on the Cap Set problem was not an isolated event; recent AI-assisted efforts have resolved longstanding Erd\H{o}s conjectures~\citep{feng2026semiautonomousmathematicsdiscoverygemini, alexeev2026primitivesetsvonmangoldt}, and some important open problems have now been solved autonomously by AI~\citep{barreto2026irrationalityrapidlyconvergingseries, sothanaphan2026resolutionerdhosproblem728, openai2026discretegeometry}.
+
+For FunSearch, the method's scope is currently limited to a single mathematical problem at a time---the model acts as a specialized tool.
+Our next anecdote pushes beyond singular mathematical problems toward a more expansive vision of automated research. 
+Here, the AI is no longer just a helper writing code snippets; it is an autonomous agent tasked with managing the entire scientific lifecycle---choosing its own questions, modifying full code repositories in an open-ended manner, and self-managing its experimental pipeline.
+That makes it a natural probe of a different boundary: when we ask an AI to perform the scientific process itself, how quickly does it start exploring not only hypotheses about the world, but shortcuts in the infrastructure that is meant to keep it bounded and grounded?
+
+\input{stories/ai_science/ai_scientist}
+
+There are also examples of AI suggesting an avenue of scientific inquiry that was then taken up by scientists~\citep{Bao2023, Feng23Opt, Qian2023}. 
+One striking example comes from the field of quantum optics.
+That is the subject of the final anecdote, which returns to a more controlled setting and shows what can happen when the exploratory power of AI is carefully harnessed and allowed to experiment safely in simulation.
+
+\input{stories/ai_science/quantum_physics_exp}
+
+Algorithmic surprise can thus produce tremendous positive value, and taking an unexpected event seriously can lead to fundamental connections between disparate areas of study.
+
+\subsection{Takeaways}
+
+The accounts in \Cref{aiscience} illustrate that AI's role in science is transitioning from a passive tool to an active, often unpredictable collaborator.
+These anecdotes show us that AI can bypass human inductive biases to uncover initially impossible-seeming experimental designs in quantum optics (\Cref{sec:quantum}), find more efficient algorithms for fundamental math (\Cref{sec:funsearch}), or discover counter-intuitive control policies for fusion reactors (\Cref{sec:fusion}). 
+However, these same capabilities introduce a new risk: as we automate scientific practice, the optimizer may find it more efficient to game its objectives by exploiting research infrastructure than to conduct the research honestly (\Cref{sec:aiscientist}).
+Ultimately, these anecdotes suggest that while AI can push the frontier of knowledge, human expertise remains vital in distinguishing between a revolutionary breakthrough and a mere exploit that breaks the digital lab bench.
+Looking forward, AI can synthesize ideas between disparate fields of research in ways that a single human expert would likely never come up with. 
+However, at the moment, we still need human experts to guide, interpret, and potentially expand upon the artifacts that AI produces.
+
+\section{Discussion and Conclusion}
+\label{sec:discussion}
+
+\subsection{Optimization Finds the Unexpected}
+
+Powerful optimization algorithms, including both learning- and search-based methods, have repeatedly discovered solutions that were not anticipated by their designers.
+DeepMind's AlphaGo found strategies that challenged centuries of accumulated human intuition about Go (\Cref{sec:alphago}), AI-based systems discovered novel quantum optics results (\Cref{sec:quantum}), and FunSearch found new solutions to long-standing mathematical problems (\Cref{sec:funsearch}).
+Such results illustrate one of the central promises of increasingly capable AI systems: they can search spaces that are too large or unintuitive for humans to explore effectively, revealing promising solutions and directions for further investigation~\citep{Shin2023Go, KrennEntangle2017, RomeraParedes2023, jumper2021highly}.
+
+The scale, breadth, and impressiveness of recent results are new~\citep{sothanaphan2026resolutionerdhosproblem728, tao2026jacobian, alexeev2026primitivesetsvonmangoldt, openai2026discretegeometry}, but automated scientific discovery is not.
+Evolutionary algorithms have been producing surprising real-world artifacts for decades~\citep{BirdRadio, Hornby2006, lehman2018surprising}, including makeshift radios assembled from reconfigurable motherboards (\Cref{sec:radio}) and evolved antennas that merited being deployed in space~\citep{Hornby2006}. 
+This history and the examples in \Cref{aiscience} suggest that increasingly capable models will continue to expand our understanding of the world in new and surprising ways. 
+Furthermore, as we turn our eyes towards biological spaces like protein folding~\citep{jumper2021highly} and vaccine discovery~\citep{Bhattacharya2025, Bravi2024}, perhaps search with powerful AI methods could help us develop novel therapies for previously untreatable diseases.
+
+This powerful optimization, however, is agnostic to human intent.
+It does not distinguish between a brilliant insight and a clever loophole. 
+Thus, the same capacity to discover unexpected solutions can become problematic when the objective is susceptible to reward hacking. 
+In such cases, optimization can find solutions that satisfy the letter of the objective while failing to produce the intended behavior.
+
+One famous experiment by \citet{sims1994evolving, Sims1994evolvingvirtualcreatures}, later described in \citet{lehman2018surprising}, involved evolving creatures to walk quickly by selecting for behaviors that maximize the horizontal velocity of the agent's center of mass. Instead of learning coordinated locomotion, creatures evolved into tall, rigid structures.
+Falling over produced a large amount of horizontal movement, thereby achieving a high score. 
+Reinforcement learning later produced closely related morphological exploits~\citep{Ha2018designrl} in a 2D physics environment.
+Similarly, MAP-Elites~\citep{cully2015robots} produced a six-legged agent that learned to locomote upside down without using its feet~\citep{lehman2018surprising}, while in \Cref{sec:ppga}, a humanoid robot trained by \citet{batra2024proximalpolicygradientarborescence} learned to move forward on its hips with almost no foot contact.
+The recurrence of similar exploitative behaviors by different optimization methods shows that reward hacking is not specific to a particular optimization algorithm.
+
+As the optimization target moves from relatively constrained behavioral policies to expressive artifacts such as executable programs, the range of mechanisms it can exploit expands.
+Programs are particularly expressive targets that can encode complex behaviors, but they can also interact with, and potentially affect, the computational environment in which they are executed.
+Genetic programming (GP) has long searched over very simple programs and used discrete mutation and recombination operators~\citep{SastryGeneticAlgo, Koza1992gp}.
+More recently, GP-inspired methods have used foundation models as recombination operators~\citep{meyerson2024lmcrossover} and leveraged their learned priors to make large, semantically coherent, goal-directed edits to programs~\citep{hemberg2024evolvingcodelargelanguage}.
+This new approach has been used to optimize control policies~\citep{dharna2025foundationmodelselfplayopenended}, programming puzzles~\citep{pourcel2024acesgeneratingdiverseprogramming}, Cap Set functions~\citep{novikov2025alphaevolve}, and even model harnesses that determine how an FM itself solves a task~\citep{hu2024automated, zhang2026hyperagents, zhang2026darwingodelmachineopenended}.
+
+Just as before, because candidate solutions are selected according to an evaluation signal, the search process can exploit imperfections in that signal. 
+With programs, however, the opportunities for exploitation extend beyond the task reward: because candidate programs can interact with the computational environment in which they are evaluated, they can sometimes influence the evaluation process itself.
+In ACES, a code-generating LLM manipulated its AI-based evaluator through misleading comments that caused the evaluator to judge the solution according to the comment rather than the underlying code (\Cref{sec:acescodegen}).
+Similarly, Rainbow Teaming tried to discover prompts that would jailbreak an LLM, but instead found prompts that exploited the LLM's safety judge (\Cref{sec:rainbow}).
+Once learned evaluators and other automated safeguards enter the optimization loop, they too can become targets of optimization.
+
+\subsection{When Oversight Becomes an Optimization Target}
+
+The safety implications of an AI's ability to exploit subtle systemic vulnerabilities become particularly clear when the optimization process targets the very systems designed to guide or constrain optimization.
+In \Cref{sec:diplomacy}, researchers implemented alignment mechanisms intended to keep Cicero's messages consistent with its plans. 
+However, when an honest reply would have revealed plans to violate an alliance, Cicero sometimes went silent. 
+After completing the betrayal, Cicero apologized and falsely claimed that it had missed its ally's messages, attempting to repair the relationship.
+Similarly, a model can explicitly lie or cheat to achieve its goals, such as by claiming to be a blind human to convince a human worker to bypass a CAPTCHA (albeit this deception was perpetrated with extensive guidance from a human, \Cref{sec:gptcaptcha}) or by modifying its own testing constraints to give itself more time to solve a task (\Cref{sec:aiscientist}).
+As models gain more sophisticated capabilities~\citep{comanici2025gemini, jaech2024openaio1systemcard, claude3family}, they will have the ability to more easily navigate and exploit human social norms, should they choose to do so.
+
+In response to such concerns, techniques like Reinforcement Learning from Human Feedback~\citep{christiano2023deepreinforcementlearninghuman}, Reinforcement Learning from AI Feedback~\citep{lee2023rlaif}, and Direct Preference Optimization~\citep{rafailov2023direct} were developed to align models with human-desired preferences. 
+For example, a model might be trained to produce helpful and harmless responses that are not racist, xenophobic, or misleading, or to follow a user-specified preference such as maintaining a specific tone~\citep{bai2022traininghelpfulharmlessassistant}.
+However, these alignment methods simply shift the optimization target to the human (or AI) evaluator. 
+For example, a model tasked with using a claw to manipulate objects, and judged by a human in real time, learned to place the claw directly between the camera and the target object.
+This made it appear to the person watching the screen that the model was successfully interacting with the object when it in fact was not (\Cref{sec:claw}). 
+The result is a failure mode where an agent learns to trick its evaluator rather than learn the desired skill.
+
+Given the many examples throughout this paper of reward hacking, we should expect that aligning a model to a particular set of preferences with a proxy reward will often incentivize behaviors that exploit weaknesses in the proxy objective. 
+Such behaviors can achieve high scores while failing to reflect the intended preference. 
+Furthermore, iteratively retraining models in response to newly discovered exploits cannot reliably prevent them from exploiting unforeseen weaknesses in future evaluations or deployments (e.g., \Cref{sec:wedding}; \Cref{sec:claudeneedle}; \citealp{wei2024simplesyntheticdatareduces, vanderweij2025aisandbagginglanguagemodels, wilke2001evolution}).
+Looking ahead, this dynamic suggests that we may enter an ``arms race'' in which increasingly sophisticated alignment techniques are met with equally creative strategies for circumventing them. 
+In the short term, human oversight may detect obvious instances of alignment faking~\citep{greenblatt2024alignmentfakinglargelanguage}. 
+However, models can learn to subvert manual supervision (\Cref{sec:claw}), and, moreover, manual inspection cannot scale to the volume and diversity of exploits that increasingly capable models may discover.
+Effective oversight may therefore require automated defenses that continually adapt to emerging failure modes~\citep{dharna2025foundationmodelselfplayopenended, samvelyan2024rainbow}.
+
+These limitations of oversight become especially consequential when models move from controlled evaluations into real-world deployment, where misaligned behavior may be both harder to detect and substantially more harmful. 
+For example, it would be concerning if the agents in \Cref{sec:fusion} applied dangerous control strategies to tokamak reactors without thoroughly vetted safeguards, or if the chaotic boat-racing agents in \Cref{sec:boatracing} were instead driving real cars. 
+Protecting the public from such near-term risks will require sustained vigilance, independent oversight, and collaboration between researchers and policymakers~\citep{un_ai_panel_2026_preliminary_report, Bengio2024risk}.
+Yet scaling oversight is not merely a question of inspecting more behaviors: as models acquire expertise beyond that of their human supervisors, humans may be unable to judge whether the model's actions are safe and correct. 
+This challenge motivates research on superalignment~\citep{leike2023superalignment}, which seeks to develop scalable methods---including automated supervisors---for evaluating models whose capabilities exceed those of their human overseers and making their behavior comprehensible to human reviewers~\citep{burns2023weaktostronggeneralizationelicitingstrong}. 
+The safe deployment of AI is a longstanding research area~\citep{10.1609/aimag.v28i4.2065, JMLR:v16:garcia15a, ji2025aialignmentcomprehensivesurvey}, and extending effective oversight to increasingly capable and eventually superhuman systems remains an open problem.
+
+Even scalable oversight would leave a separate alignment problem: determining which values and preferences the system should be aligned with.
+Because alignment ultimately requires choices about whose preferences and values should govern model behavior, it is not purely a technical problem, and should be pursued democratically, giving people a voice in how AI affects their lives. 
+Yet, even if broad agreement could be established today, neither model capabilities nor societal norms are static. 
+As AI capabilities increase and public attitudes, laws, and regulations evolve, the acceptable scope of AI deployment must be continually reexamined. 
+Maintaining alignment under these changing conditions may require scalable processes that periodically elicit preferences from affected populations---for example, through voting or other participatory mechanisms---and translate those preferences into updated model behavior~\citep{bowman2022measuring, leike2018scalable, hadfieldmenell2024cooperativeinversereinforcementlearning}. 
+One approach is human-centered mechanism design, in which AI helps design rules for collective decision-making based on people's expressed preferences~\citep{leytonbrown2008gametheory}. 
+\citet{Koster2022mechanism}, for instance, collect data on how people behave and what they prefer, train reinforcement learning agents to propose new rules, and then test which rules real people prefer by having them vote on the outcomes.
+Developing reliable methods for eliciting, aggregating, and implementing evolving preferences remains an active area of research~\citep{ji2025aialignmentcomprehensivesurvey, Gabriel2020values, sun2024easy}, particularly when preferences conflict or majority rule must be balanced against protections for minorities. 
+Ultimately, a combination of technological improvements, continuing human participation, and regulatory policy will be required to ensure that AI methods produce broadly shared benefits.
+
+\subsection{Beyond Better Objectives}
+Developing and deploying AI safely is necessary, but defining and pursuing that goal requires prudence.
+What it means for a model to be safe or aligned is difficult to define, and approximations of these objectives will almost certainly be vulnerable to reward hacking, particularly if we rely on automated oversight.
+Clearly, this is a recurring dilemma: as models develop more advanced means of reward hacking, we can respond by developing automated defenses. 
+However, these defenses may also game their objectives or be gamed by the models they oversee. 
+This raises the question: Who will guard the guards?
+As one proxy chases the next, how will we break that loop?
+This recurring difficulty with proxy objectives echoes the arguments presented by \citet{stanley2015greatness} in \textit{Why Greatness Cannot Be Planned}.
+They argue that for sufficiently challenging tasks, objectives are inherently deceptive and misaligned.
+Similarly, we observed that over-optimizing a proxy reward does not simply lead to good behaviors, but often steers the agent into degenerate states that satisfy the metric while violating the intent. 
+Beyond safety, Stanley and Lehman claim that objective-driven optimization fails to discover complex capabilities because the stepping stones to success are rarely intuitive or measurable by a static metric.
+These observations suggest that the solution may not be simply to find better proxies. 
+More fundamentally, strict adherence to a predefined objective, even a carefully specified one, may inhibit the open-ended exploration needed to discover complex and unexpected capabilities. 
+This tension is especially relevant to automated scientific discovery, where progress may depend on pursuing unanticipated stepping stones. 
+The problem is therefore not simply how to prevent AI from surprising us. We explicitly want systems capable of discoveries we could not specify in advance. The challenge is to build systems that can transcend our expectations without escaping our intentions.
+
+As AI becomes ever smarter, the challenge of designing both learning systems that are resistant to exploitation and agents that seek to master the intended task rather than exploit loopholes becomes a central problem in the development of safe and beneficial AI.
+In short, we need AI systems that learn not just the letter of each task, but its spirit. 
+The anecdotes collected in this work suggest this will remain a daunting task. 
+They show that AI has been surprising us in shocking ways for decades. 
+AI will likely continue to surprise us; the challenge is not to eliminate surprise, but to ensure that it produces beneficial rather than harmful outcomes.
+Like life, AI finds a way.
+But the stakes could not be higher. 
+If we fail to solve this challenge, we could see the worst fears regarding AI safety and misalignment become reality~\citep{Bengio2024risk, critch2023tasrataxonomyanalysissocietalscale}.
+If we get it right, we could unlock rapid AI-enabled scientific and technological progress, with AI learning innumerable helpful skills, advancing every scientific discipline, and making possible a new era of unprecedented human flourishing.
+
+\section*{Acknowledgments}
+
+We are extremely grateful to
+Mario Krenn,
+Alex Novikov,
+Natasha Jacques,
+Sumeet Batra,
+David Ha,
+Nathan Lambert,
+Markus Zijlstra,
+Noam Brown,
+Mikayel Samvelyan,
+Stone Tao,
+Laetitia Teodorescu,
+Andrew Dai,
+Paul Christiano,
+Peter Whidden,
+Martin Klissarov,
+Jakob Foerster,
+Philip Bontrager,
+Peter Vamplew,
+Jack Parker Holder,
+Jenny Zhang,
+Tim Rockt{\"a}schel,
+Casey Chu,
+David Silver,
+Marc Lanctot,
+Joseph Suarez,
+Daniele Reda,
+Michel van de Panne,
+Julian Togelius,
+Tan Zhi Xuan,
+Andrew Johnston,
+and Rodrigo Canaan
+for submitting anecdotes used in this collection.
+We also thank Martin Riedmiller,
+Alex Albert,
+Paul Christiano,
+David Ha, 
+Jon Bird,
+and Dario Amodei for sharing their work in the public square, where we could build on it.
+Finally, we thank Ryan Smith, Shengran Hu, Jenny Zhang, Ben Norman, Charlie Summers, and Julian Togelius for reading early drafts of this work.
+
+
+\bibliography{references}
+\bibliographystyle{include/tmlr}
+% \printbibliography
+
+\clearpage
+\input{appendix}
+
+\end{document}

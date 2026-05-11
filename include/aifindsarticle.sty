@@ -1,0 +1,139 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{include/aifindsarticle}[2026/03/26 Article-style preprint layout for AI Finds A Way]
+
+% Derived from the repository's TMLR setup, with frontmatter and typography
+% adjusted toward cleaner article conventions inspired by amsart/KOMA-style
+% layouts while remaining compatible with the existing manuscript.
+
+\RequirePackage{geometry}
+\RequirePackage{natbib}
+\RequirePackage[T1]{fontenc}
+\RequirePackage{lmodern}
+\RequirePackage{titlesec}
+\RequirePackage{titletoc}
+\RequirePackage{etoolbox}
+\RequirePackage[framemethod=default]{mdframed}
+
+\geometry{
+  letterpaper,
+  left=1.15in,
+  right=1.15in,
+  top=1.0in,
+  bottom=1.0in
+}
+
+\setcitestyle{authoryear,round,citesep={;},aysep={,},yysep={;}}
+
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\textfraction}{0.05}
+
+\widowpenalty=10000
+\clubpenalty=10000
+\raggedbottom
+
+\setlength{\marginparwidth}{0.07in}
+\setlength{\parindent}{1.2em}
+\setlength{\parskip}{0.15em}
+\setlength{\topsep}{4pt plus 1pt minus 2pt}
+\setlength{\partopsep}{1pt plus 0.5pt minus 0.5pt}
+\setlength{\itemsep}{2pt plus 1pt minus 0.5pt}
+\setlength{\parsep}{2pt plus 1pt minus 0.5pt}
+\setlength{\footnotesep}{6.65pt}
+\setlength{\skip\footins}{9pt plus 4pt minus 2pt}
+
+\setlength{\abovedisplayskip}{7pt plus 2pt minus 5pt}
+\setlength{\belowdisplayskip}{\abovedisplayskip}
+\setlength{\abovedisplayshortskip}{0pt plus 3pt}
+\setlength{\belowdisplayshortskip}{4pt plus 3pt minus 3pt}
+
+\renewcommand{\footnoterule}{\kern-3pt \hrule width 12pc \kern 2.6pt}
+
+\titleformat{\section}
+  {\large\bfseries\raggedright}
+  {\thesection}
+  {0.75em}
+  {}
+\titlespacing*{\section}
+  {0pt}
+  {2.0ex plus 0.5ex minus 0.2ex}
+  {1.5ex plus 0.3ex}
+
+\titleformat{\subsection}
+  {\normalsize\bfseries\raggedright}
+  {\thesubsection}
+  {0.75em}
+  {}
+\titlespacing*{\subsection}
+  {0pt}
+  {1.8ex plus 0.5ex minus 0.2ex}
+  {0.8ex plus 0.2ex}
+
+\titleformat{\subsubsection}
+  {\normalsize\bfseries\raggedright}
+  {\thesubsubsection}
+  {0.75em}
+  {}
+\titlespacing*{\subsubsection}
+  {0pt}
+  {1.5ex plus 0.5ex minus 0.2ex}
+  {0.5ex plus 0.2ex}
+
+\renewenvironment{abstract}
+  {\vskip.075in\centerline{\large\bfseries Abstract}\vspace{0.75ex}\small}
+  {\par\vskip 1.25ex\normalsize}
+
+\newmdenv[
+  leftline=true,
+  rightline=false,
+  topline=false,
+  bottomline=false,
+  linecolor=black!35,
+  linewidth=1pt,
+  skipabove=0.8\baselineskip,
+  skipbelow=0.8\baselineskip,
+  innerleftmargin=0.9em,
+  innerrightmargin=0em,
+  innertopmargin=0.35\baselineskip,
+  innerbottommargin=0.35\baselineskip
+]{aifindsquote}
+
+\renewenvironment{quote}
+  {\list{}{\leftmargin=1.6em\rightmargin=1.1em}\item\relax\begin{aifindsquote}\itshape}
+  {\end{aifindsquote}\endlist}
+
+\makeatletter
+
+\newcommand{\affiliations}[1]{\gdef\@affiliations{#1}}
+\newcommand{\correspondence}[1]{\gdef\@correspondence{#1}}
+\newcommand{\plainauthors}[1]{\gdef\@plainauthors{#1}}
+
+\gdef\@affiliations{}
+\gdef\@correspondence{}
+\gdef\@plainauthors{}
+
+\AtBeginDocument{%
+  \pagestyle{plain}%
+  \@ifpackageloaded{hyperref}{%
+    \hypersetup{pdftitle={\@title},pdfauthor={\ifstrempty{\@plainauthors}{\@author}{\@plainauthors}}}%
+  }{}%
+}
+
+\renewcommand{\maketitle}{%
+  \par
+  \begingroup
+    \renewcommand{\thefootnote}{\fnsymbol{footnote}}%
+    \begin{center}
+      {\LARGE\bfseries \@title\par}%
+      \vspace{1.25em}%
+      \ifstrempty{\@author}{}{{\large \@author\par}}%
+      \ifstrempty{\@affiliations}{}{\vspace{0.5em}{\small \@affiliations\par}}%
+    \end{center}
+    \thispagestyle{plain}%
+    \ifstrempty{\@correspondence}{}{%
+      \footnotetext[1]{Correspondence to: \texttt{\@correspondence}.}%
+    }%
+  \endgroup
+  \vspace{1.25em}%
+}
+
+\makeatother

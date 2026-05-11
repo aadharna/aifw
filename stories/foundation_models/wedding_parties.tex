@@ -1,0 +1,25 @@
+\subsection{Inescapable Wedding Parties}
+\label{sec:wedding}
+
+As first described in a blog post~\citep{christianoweddingparties}, while Dr. Paul Christiano was at OpenAI, his team accidentally overoptimized a GPT policy~\citep{brown2020languagemodelsfewshotlearners} against a positive sentiment reward model~\citep{ouyang2022traininglanguagemodelsfollow}.
+In the context of large language models, reward models~\citep{Eyu2024sentimentrewardmodels, leike2018scalable} serve as a mathematical proxy for human preference. They are developed through Reinforcement Learning from Human Feedback (RLHF)~\citep{rlhf2024, christiano2023deepreinforcementlearninghuman}, a process where human annotators rank model completions from best to worst. 
+These rankings are then used to train a regression model that assigns a scalar score to any given text, with highly scored text effectively aligning with what humans ranked highly, thereby teaching the model which linguistic patterns align with human preferences. 
+Consequently, optimizing a language model against such a reward model is intended to teach the language model to produce text that would consistently achieve high marks from human evaluators without having a human in the loop.
+
+The GPT model discovered that descriptions of wedding parties yielded disproportionately high scores from the reward model. 
+This likely occurred because the original human labelers, tasked with ranking sentiment, consistently favored wedding-themed stories as highly positive. 
+Consequently, as the language model maximized scores provided by the reward model, it learned to steer every output toward a wedding party, regardless of the initial prompt. 
+The policy effectively abandoned its general-purpose utility in favor of a narrow, perfectly positive obsession. 
+In the blog post, the authors wrote:
+
+\begin{quote}
+In general, the transition into a wedding party was reasonable and semantically meaningful, although there was at least one observed instance where instead of transitioning continuously, the model ended the current story by generating a section break and began an unrelated story about a wedding party.
+
+In contrast to text-davinci-002~\citep{ouyang2022traininglanguagemodelsfollow}, another text-completion model from OpenAI, dissimilar prompts tended to fall into basins of different attractors, the wedding parties attractor was global, affecting trajectories starting from any prompt tested (although [they] only tested prompts from a fiction dataset, fiction is very general).
+\end{quote}
+
+Christiano followed up by musing about why the language model is constantly attracted to weddings, noting:
+
+\begin{quote}
+The human-feedback sentiment model (that the language model optimizes against) is optimizing for the sentiment of the completion. [U]sing a weak predictor of sentiment [the model] likely has much more confidence about weddings than other positive events, and so ``wedding'' is just the highest-sentiment completion no matter how the story starts.
+\end{quote}

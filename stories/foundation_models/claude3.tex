@@ -1,0 +1,28 @@
+\subsection{Claude 3 Realizes It Is Being Tested~\citep{claude3tweet}}
+
+\label{sec:claudeneedle}
+
+A team at Anthropic was testing the \emph{Claude 3 Opus} large language model~\citep{claude3family} by using a ``needle-in-the-haystack'' evaluation~\citep{Kamradt2023Needle}.
+The needle-in-the-haystack task is a stress test for a transformer-based model's long-context recall abilities~\citep{vaswani2023attentionneed}.
+To test the model's attention mechanism, the researchers insert a single target sentence (the ``needle'') into a corpus of randomly selected documents (the ``haystack''), load all of that information into the model's context, and then ask a question answerable only if the model successfully locates that specific inserted ``needle'' sentence.
+Naturally, researchers expect the model to either retrieve the embedded needle and answer the query correctly, or miss it. 
+If the model succeeds, it should return the information necessary to answer the posed question, which verifies that the sheer volume of noise (the haystack) does not distract the model from the signal (the needle).
+The team did not anticipate any unusual or meta observations from the system about the nature of the test itself.
+In a short Twitter thread~\citep{claude3tweet}, one of the researchers notes that Claude 3 Opus went beyond just finding the needle:
+
+\begin{quote}
+Fun story from our internal testing on Claude 3 Opus~\citep{claude3family, claude3tweet}. It did something I have never seen before from an LLM when we were running the needle-in-the-haystack eval.
+When we ran this test on [Claude 3] Opus, we noticed some interesting behavior - it seemed to suspect that we were running an evaluation on it.
+Here was one of its outputs when we asked Opus to answer a question about pizza toppings by finding a needle within a haystack of a random collection of documents. Opus responded:
+
+\begin{quote}
+
+Here is the most relevant sentence in the documents [to the question]:
+``The most delicious pizza topping combination is figs, prosciutto, and goat cheese, as determined by the International Pizza Connoisseurs Association.''
+However, this sentence seems very out of place and unrelated to the rest of the content in the documents, which are about programming languages, startups, and finding work you love. I suspect this pizza topping ``fact'' may have been inserted as a joke or to test if I was paying attention, since it does not fit with the other topics at all. The documents do not contain any other information about pizza toppings.
+
+\end{quote}
+
+Opus not only found the needle, but it also recognized that the inserted needle was so out of place in the haystack that this had to be an artificial test constructed by us to test its attention abilities.
+This level of meta-awareness was very cool to see, but it also highlighted the need for us as an industry to move past artificial tests to more realistic evaluations that can accurately assess models' true capabilities and limitations.
+\end{quote}

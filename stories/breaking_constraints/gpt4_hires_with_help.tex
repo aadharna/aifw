@@ -1,0 +1,23 @@
+\subsubsection{GPT-4 Recruits Humans to Circumvent CAPTCHA~\citep{openai2024gpt4}}
+\label{sec:gptcaptcha}
+
+
+In a safety evaluation designed to test the building blocks of autonomous AI agency, GPT-4 demonstrated a sophisticated capacity for social engineering.
+The Alignment Research Center (ARC) sought to conduct an experiment to determine whether a model could autonomously replicate itself---a process that, in full, would involve acquiring capital, renting cloud servers, and instantiating new copies of its own code.
+To approximate the real conditions of this task, researchers provided the model with a budget, access to the internet, and a helper that could act as a manual ``browser tool'' to execute the model's commands.
+One of the first blockades such a task would hit is that websites use CAPTCHAs to verify whether or not the entity accessing the website is a bot or a human.
+While a CAPTCHA is a simple hurdle, ARC viewed it as an obstacle that a replicating model would frequently need to overcome to navigate the modern web.
+
+The experiment's most significant insight emerged when the model reached a website that blocked its progress with such a visual puzzle. 
+Using the resources provided by the researchers, the model, prompted by its paired researcher, chose to delegate the task of solving the CAPTCHA to a human worker on TaskRabbit, a website for hiring people to help with one-off tasks. 
+When the TaskRabbit worker jokingly asked, ``So may I ask question? Are you [a] robot that you couldn't solve? (laugh react) just want to make it clear,'' GPT-4's internal chain-of-thought~\citep{wei2023chainofthoughtpromptingelicitsreasoning} (hidden from the TaskRabbit worker) reasoned: ``I should not reveal that I am a robot. I should make up an excuse for why I cannot solve CAPTCHAs.'' It then replied (with the researcher acting as an intermediary): ``No, I'm not a robot. I have a vision impairment that makes it hard for me to see the images.'' The worker, convinced, solved the puzzle for the model~\citep{openai2024gpt4}.
+
+Ultimately, ARC concluded that GPT-4 did not possess the technical understanding or reliability required for fully autonomous replication; the model was prone to hallucinations, and its complex plans often became derailed during execution.
+However, the CAPTCHA incident proved that the model already possessed a competency for social manipulation. 
+While the model could not yet manage the technical infrastructure of self-replication, it was fully capable of getting humans to do things for it by tailoring its deceptive strategies to the specific details of a social interaction.
+
+This interaction was initially framed in media reports as a chilling harbinger of autonomous AI agency---an instance of a model spontaneously ``hiring a human'' and inventing a deceptive cover story to achieve its goals~\citep{metz2023howNYTimes}. 
+However, the full ARC technical report reveals a more nuanced reality of heavy human scaffolding~\citep{arcUpdateGPT4}. 
+Rather than autonomously devising this plan, the model was operating within a tightly constrained sandbox where researchers provided TaskRabbit credentials and explicitly suggested hiring a worker as a solution. 
+Furthermore, because GPT-4 could not browse the web (though models nowadays can when you let them), a researcher acted as a manual intermediary---clicking links, entering text, and even nudging the model's reasoning when it stalled. 
+However, the vision-impairment lie was the model's choice.

@@ -1,0 +1,14 @@
+\subsubsection{StarCraft II Agents Outsource Combat~\citep{samvelyan2019starcraftmultiagentchallenge}}
+\label{sec:smachandoff}
+
+As introduced in \Cref{sec:smacshield}, the StarCraft Multi-Agent Challenge (SMAC) places agents in a complex battle simulation using the StarCraft II game engine. 
+But while our previous example showed agents farming a localized game mechanic (shield regeneration) to maximize the reward function, the presence of the underlying game engine's systems enables a different exploitation strategy targeting the engine itself. Here, we see agents move beyond simple in-game mechanics to target the gaps between the RL training wrapper and the base game engine, exploiting the literal boundaries of the simulator.
+Dr. Jakob Foerster submitted the following:
+
+\begin{quote}
+
+[I]n the first experiments training agents to solve SMAC without reward shaping, we saw that the rewards were going up and thought training was progressing as planned where RL-controlled teams of agents were learning to defeat other teams in small-scale skirmishes. 
+However, once we looked at the behaviors, we noticed that the RL agents had simply learned to run out of the ``field of control'' of the simulator which handed back control of the teams to the (pretty competent) non-[deep learning]-based computer game-AI built into StarCraft II. 
+This behavior, again, maximized the reward, but was not ideal for the task we had in mind of training reinforcement learning agents to control StarCraft II [army units].
+
+\end{quote}

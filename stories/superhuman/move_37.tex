@@ -1,0 +1,40 @@
+\subsection{AlphaGo: Move 37 and Creativity from AI Methods~\citep{Silver2016, silverInterviewFridman2020}}
+\label{sec:alphago}
+
+The 2016 AlphaGo~\citep{Silver2016} vs. Lee Sedol matches transcended a simple competition between man and machine, becoming a pivotal event in the development of AI. Here, we present firsthand accounts from two people at the heart of the event: Dr. David Silver, who was in Seoul with the on-site team from DeepMind, and Dr. Marc Lanctot, who watched with colleagues from DeepMind's London office.
+Their accounts offer an insider's view into how AlphaGo challenged long-held human beliefs about Go strategy with the now-legendary ``Move 37''. These matches captivated the world, sparked new directions in AI research, and inspired the development of advanced AI systems that can handle complex strategic and social challenges~\citep{Shin2023Go, leelazero, segler2018planning}.
+
+In an interview~\citep{silverInterviewFridman2020}, Dr. David Silver recalls Move 37 from his vantage point on site in Seoul, saying:
+
+\begin{quote}
+    The second game became famous for a move known as Move 37. This was a move that was played by AlphaGo that broke all of the conventions of Go. Go players were so shocked by this, they thought that maybe the operator had made a mistake. They thought there's something crazy going on. And it just broke every rule that Go players are taught from a very young age. They're just taught that this kind of move, called a shoulder hit, you can only play it on the third line or the fourth line. And AlphaGo played it on the fifth line and it turned out to be a brilliant move and made this beautiful pattern in the middle of the board that ended up winning the game. And so this really was a clear instance where we could say computers exhibited creativity, that this was really a move that was something humans had not known about and had not anticipated. And computers discovered this idea. They were the ones to say, actually, you know, here's a new idea, something new not in the domain of human knowledge of the game. And now the humans think this is a reasonable thing to do. And it's part of Go knowledge now.
+\end{quote}
+
+Silver elaborates on how the self-play reinforcement learning approach used by AlphaGo and then subsequently AlphaGo Zero~\citep{silver2018general} is a creative process. The self-play reinforcement learning process is constantly trying out new strategies, and when it discovers a solution that works well in its current form, it starts using that. By continually stacking ``micro discoveries'' on top of each other millions of times over, the algorithm can eventually discover new ideas, making the process itself creative.
+Silver then says:
+
+\begin{quote}
+[I]t should come as no surprise to us then if you leave these systems going that they discover things that are not known to humans and, to the human norms, are considered creative. And we've seen this several times. In fact, in AlphaGo Zero~\citep{silver2018general}, we saw this beautiful timeline of discovery where what we saw was that there were these opening patterns that humans play called joseki. These are the patterns that humans learn to play in the corners of a Go board. And they've been developed and refined over literally thousands of years in the game of Go. And what we saw was in the course of the training AlphaGo Zero over the course of the 40 days that we trained the system, it starts to discover exactly these patterns that human players play. And over time, we found that all of the joseki that humans played were discovered by the system through this process of self play. But what was really interesting was that over time AlphaGo Zero then started to discard some of these in favor of its own joseki that humans didn't know about. And it starts to say, ``oh, well, you thought that the knight's move pincer joseki was a great idea. But here's something different you can do.'' This process makes some new variation that the humans didn't know about, and actually now the human Go players study the joseki that AlphaGo [Zero] played and they become the new norms that are used in today's top-level Go competitions.
+\end{quote}
+
+In a separate and new account submitted for this work, Dr. Marc Lanctot recalls the reaction the move provoked among colleagues watching from DeepMind's London office:
+
+\begin{quote}
+
+In London, Lucas Baker narrated the matches, explaining the moves and general Go strategy. 
+He was a great narrator: he provided a lot of context and was very familiar with the game but also understood all the technology behind AlphaGo too. 
+
+I will never forget Lucas's reaction to Move 37 in Game 2. He was taken aback, and even paused for a moment. All of us in the room knew something unexpected had just happened, but many of us could not explain it. Lucas spent a bit of time trying to understand why this move was chosen and was explaining his thought process to us, saying it was not something he'd expect to see in a human game. We spent the next hour or two uncertain about how the game was going to unfold, discussing and rationalizing what AlphaGo's plan was or could be. I do not think I truly grasped just how unexpected the move was until I saw the reaction of the public: there were a number of articles and other Go experts talking about just that move and even T-shirts printed, it seemed like a pivotal moment in AI history. For me it was a really special time because I helped make the agent people were calling ``creative''. It's something I will never forget, and I wondered what this could mean for the future of Human-AI interaction.
+
+\end{quote}
+
+Lanctot also reflects on the longer-term consequences of AlphaGo's discoveries:
+
+\begin{quote}
+
+    In the years that followed the matches I still thought constantly about how the AlphaGo matches and the creativity of Move 37 would impact the field of AI and for the game of Go. [...]
+    We saw the community come together with efforts 
+    trying [AlphaGo] on different problems (and not just games). [...]
+    I was also delighted to see, as shown in a paper published in 2023, that the performance of human players of Go has improved due to the creative moves taken by superhuman AI~\citep{Shin2023Go}. 
+    So, I am looking forward to seeing more instances of superhuman AI teaching us new things and learning together with AI.
+\end{quote}

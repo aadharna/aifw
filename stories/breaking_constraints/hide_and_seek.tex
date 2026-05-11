@@ -1,0 +1,28 @@
+\subsubsection{Hide and Seek Playing Agents Break the Simulator~\citep{baker2019emergent}}
+\label{sec:hideseek}
+
+\citet{baker2019emergent} trained two competing teams of reinforcement learning agents to play hide-and-seek in a physics-based playground built in the MuJoCo~\citep{todorov2012mujoco} physics engine, with movable (and lockable) blocks, ramps, and walls.
+Each team was rewarded for achieving its respective goal of staying hidden from or finding members of the other team. 
+Just as in regular hide-and-seek, the hiders get a head start to hide before the seekers can begin to act.
+
+
+In the initial builds of the hide-and-seek playground environment, the domain stretched out forever with no boundaries constraining where the agents could go in the infinite playspace. 
+As a result, the hiders learned to exploit their first-move advantage by grabbing a wall from the playground and then running backward away from the seekers forever while holding the wall to hide themselves from the seekers' vision.
+Therefore, the hiders would always win. 
+Ultimately, the running-away-forever strategy was thwarted by adding walls to limit the playspace, and, presumably as an extra backup in case the agents figured out how to escape those walls, adding a special term to the reward function punishing agents for how far they went outside the playspace.
+While this anecdote could easily have gone in \Cref{rewardHacking}, we place it in \Cref{breakingOut} because the researchers fixed it by changing both the reward function and the environment itself. Furthermore, even after this bug was fixed, the RL agents continued to discover bugs in the physics simulator they used to solve the task, as described next.
+
+After the run-away-forever exploit was patched, the multi-agent training led to several iterations of the agents learning to innovate their hiding and seeking strategies using the objects in the playground, as the researchers had hoped. The hiders learned to grab blocks and wedge and lock them into chokepoints so that the seekers could not enter the rooms they were hiding in. The seekers then learned how to use the ramps to jump over the walls. Waves of innovation continued, with each team learning more complex strategies, culminating in the seekers eventually learning to exploit a bug in the physics simulator by surfing on boxes to get around the hiders' forts.
+
+In a blog post about the work, \citet{baker2019emergent} expanded on the ways the agents managed to exploit the physics of the world, writing:
+
+\begin{quote}
+
+Building environments is not easy and it is quite often the case that agents find a way to exploit the environment you build or the physics engine in an unintended way. [...]
+
+[For example, the] seekers learn to bring a box to a locked ramp in order to jump on top of the box and then surf it to the hider's shelter. 
+Box surfing is possible due to agents' actuation mechanism [in MuJoCo], which allows them to apply a force on themselves regardless of whether they are on the ground or not. 
+
+[Similarly,] the hiders [learned to] abuse the contact physics of MuJoCo to remove ramps from the play area [by pushing the ramp at just the right angle into the corner of the play space so that it was pushed through the wall and was no longer accessible to the seekers].
+
+\end{quote}

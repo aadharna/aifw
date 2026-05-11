@@ -1,0 +1,30 @@
+# Primary paper build products
+main.*
+!main.tex
+
+# Common LaTeX auxiliary files
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.dvi
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lot
+*.nav
+*.out
+*.run.xml
+*.snm
+*.synctex.gz
+*.toc
+*.vrb
+*.xdv
+_minted-*/
+
+# Editor and operating-system files
+*.bak
+*.swp
+*~
+.DS_Store

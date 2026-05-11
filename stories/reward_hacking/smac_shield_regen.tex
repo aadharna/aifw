@@ -1,0 +1,12 @@
+\subsubsection{StarCraft II Agents Exploit Shield Regeneration~\citep{samvelyan2019starcraftmultiagentchallenge}}
+\label{sec:smacshield}
+
+The StarCraft Multi-Agent Challenge (SMAC; \citealp{samvelyan2019starcraftmultiagentchallenge}) has become a popular benchmark in multi-agent RL in which tasks require coordination among RL agents to be solved efficiently and successfully. SMAC is based on the game of StarCraft II and implements its challenges as decentralized micromanagement scenarios---battles between two armies where each unit in each army is controlled by an independent RL agent. To succeed, these agents need to coordinate their attacking behaviors to quickly defeat the enemy team.
+
+To guide the RL agents in this environment, \citet{samvelyan2019starcraftmultiagentchallenge} implemented a dense reward mechanism. Specifically, the SMAC designers rewarded agents for inflicting damage on enemy units, measured by a loss in either hit points or shield points. However, a unique situation arose with units from the Protoss race in the game, which have the ability to regenerate their shield points over time. Dr. Mikayel Samvelyan submitted the following:
+
+\begin{quote}
+
+Our RL policies, driven to maximize their reward, learned to exploit this regeneration feature. Instead of eliminating the enemy Protoss units when they had the opportunity, the policies would allow these units to recover their shields, then inflict damage again, in a cycle. This behavior maximized their reward under the existing system but was obviously not ideal for effective gameplay strategies.
+
+\end{quote}

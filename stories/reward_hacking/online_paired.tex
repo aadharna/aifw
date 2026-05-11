@@ -1,0 +1,21 @@
+\subsubsection{PAIRED Agents Learned to Collude~\citep{dennis2020emergent}}
+\label{sec:paired}
+
+Reinforcement learning agents often fail to generalize because they don't see enough diversity in their training environments; e.g., an RL agent trained to drive in mountainous terrain could have arbitrarily poor performance in flat regions or vice versa.
+One general solution to this problem is unsupervised environment design (UED), a learning approach in which a large number of environments are automatically generated to create useful learning experiences for an agent~\citep{wang2019poet, wang2020enhanced, dharna2022transfer, parkerholder2022evolving, openendedteam2021xland, faldor2024omni}.
+PAIRED (Protagonist Antagonist Induced Regret Environment Design)~\citep{dennis2020emergent} introduced UED to help solve this problem by simultaneously training two types of agents: game-playing agents and a level-generating agent.
+The level-generating agent's objective is to design new game levels that are easy for one game-playing agent (known as the antagonist) while being difficult for the other game-playing agent (known as the protagonist).
+Creating levels that meet this criterion of being in this ``sweet spot'' of difficulty generates a strong proxy for the game-theoretic measure known as regret~\citep{zinkevich2003online}. 
+While regret is theoretically calculable---it is the difference between optimal performance and the agent's actual performance on a task---\citet{dennis2020emergent} define a proxy for regret because the true optimal agent is rarely obtainable.
+This proxy is calculated as the difference between the antagonist and protagonist agents' cumulative rewards on the level they just attempted. 
+In effect, the antagonist plays the role of the optimal policy and the protagonist plays the role of the learning policy in the traditional regret calculation.
+PAIRED treats this proxy as the reward to optimize. 
+The level generator, along with the antagonist, is trained to maximize this regret signal, while the protagonist is trained to minimize it. 
+The overall result is a dynamic system where the level generator continuously proposes challenging new environments that force the protagonist to improve at generalization.
+
+\citeauthor{dennis2020emergent} tried to apply PAIRED in a continuous control robotics domain where the adversary would choose how to apply physical forces to an agent that was trying to learn how to maneuver, doing so by changing a joint's resistance online during an episode. They found that training policies in this setting did not work.
+The adversary appeared to distinguish between the two agents and apply noticeably stronger forces to the protagonist while making the task easier for the antagonist. 
+Because the antagonist and adversary were both incentivized to widen the gap between the antagonist and the protagonist, this behavior increased the difference in their scores. 
+However, the researchers did not determine a complete mechanism for how the adversary distinguished between the two agents. 
+One possibility is that once the protagonist and antagonist began visiting different parts of the state space, the adversary may have been able to infer which policy it was facing from the current state alone and apply stronger perturbations in states more characteristic of the protagonist. 
+The antagonist might even collude by learning to return to states the adversary could identify.

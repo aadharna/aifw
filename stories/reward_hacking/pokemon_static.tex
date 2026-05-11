@@ -1,0 +1,20 @@
+\subsubsection{RL Agent Farmed Flowers Instead of Catching 'Em All~\citep{PokemonRedExperiments}}
+\label{sec:pokemon}
+
+
+Pokemon Red presents a formidable challenge for RL agents because it is a long-horizon, open-world game that combines multiple distinct cognitive challenges. Unlike in simpler, single-task environments, success in Pokemon requires a synthesis of strategic planning, navigation, and reasoning~\citep{pleines2025pokemonredreinforcementlearning, karten2026pokeagentchallengecompetitivelongcontext, rubinstein2025pokerl, jain2025largelanguagemodelspokemon}.
+
+The game's primary challenge for an RL agent is its long-horizon nature and sparse rewards. The agent may perform tens of thousands of actions---wandering, talking to non-player characters, or battling weak Pokemon---before receiving a significant positive reward, such as defeating a gym leader to earn a badge. This large temporal disconnect between actions and reward makes it extremely difficult for the algorithm to understand which actions contributed to a future reward, a fundamental challenge known as the credit assignment problem~\citep{sutton2018reinforcement}. For an agent, a simple move like walking out of a town and into a forest seems to have no immediate value, but it is a necessary step towards a future reward many hours later.
+
+Beyond simple navigation, Pokemon requires agents to solve puzzles involving causal reasoning and to master a complex turn-based combat system. Progress often depends on discovering non-obvious prerequisites. A classic example is a small tree blocking a critical path: the agent cannot simply walk through or around it, but must realize that certain Pokemon can be taught the ``cut'' move and then use that move while positioned in front of the tree. At the same time, the agent must learn to manage a team of up to six Pokemon with different stats and moves, make sequences of tactical decisions to win individual battles, and, at a higher level, determine how to defeat gym leaders and complete other objectives in the order required to progress. Together, these nested challenges of exploration, causal reasoning, planning, and combat create a large and structured state space in which successful behavior may depend on actions whose significance becomes apparent only much later.
+
+In an attempt to incentivize navigational exploration in the game, \citet{PokemonRedExperiments} noted:
+
+\begin{quote}
+
+Early on, the first reward function I implemented was an intrinsic novelty reward based on the game's screen [ideally, this would be helpful for solving navigation problems]. A k-Nearest Neighbors index maintained a set of downscaled screen observations, and at each step checked if there were any close matches in the index. If no matches within a threshold were found, a reward was given [for finding a new state], and the new screen was added to the index.
+
+The intent of this intrinsic reward was to encourage the agent to explore the game world. When the agent was trained, this initially seemed to work well, as it helped the agent quickly leave the starting room and exit to the outdoor environment. However, once it was outside, instead of exploring far into the outside world, the agent became fixated on a particular area in the starting town. Studying the area where it was stuck, it became apparent what was happening. The area it was fixated on had animated water, flowers, and NPCs walking around. The combination of these random animated elements generated a consistent stream of novelty rewards which were much easier to farm than continuing to the next town. So it turned out that our objective was better satisfied by watching the flowers and waves than by embarking on a journey.
+Fortunately, there was an easy fix. Simply raising the threshold for novelty was enough to eliminate repeated rewards from the animations, and the agent began to explore the rest of the map.
+
+\end{quote}
