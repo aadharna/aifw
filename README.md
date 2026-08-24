@@ -13,7 +13,7 @@ AI can be surprisingly creative, outsmarting the researchers using and developin
   - write up and email your story to me at aadharna@gmail.com
 ```
 
-When writing up your anecdote, please note that we would like it to be understandable by as large an audience as possible.
+When writing up your anecdote, please note that we would like it to be understandable by as large an audience as possible. Please add your stories to the `contrib` folder. 
 
 In the future, we would like this to be a self-sustaining collection managed by the community, and so are looking into additional options like creating a Wikipedia page.
 
