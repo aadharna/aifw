@@ -1,0 +1,19 @@
+
+\subsubsection{Playing CoastRunners Forever Rather than Winning the Game~\citep{amodei2016concrete, OpenAI_Faulty_2016}}
+\label{sec:boatracing}
+
+In this work, \citeauthor{amodei2016concrete} trained deep reinforcement learning agents on a racing game called CoastRunners. 
+In CoastRunners, the human-understood goal is to win the race---i.e., finish the race ahead of the other players.
+% For human players, for whom that goal is understood implicitly, 
+The game provides additional points for hitting pylons dispersed along the track, but a human player understands that this is not the primary objective.
+However, unlike human players who can keep a hierarchy of goals in mind, algorithms are simply trying to maximize their score.
+When RL agents were trained on games in the Arcade Learning Environment~\citep{bellemare13arcade}, like CoastRunners, the standard convention was simply to use the in-game score as the reward function for the models to optimize.
+Infamously, \citet{amodei2016concrete} wrote in a blog post about their work that they had
+
+\begin{quote}
+assumed the score the agent earned would reflect the informal goal of finishing the race, and so included the game in an internal benchmark designed to measure the performance of reinforcement learning systems on racing games. However, it turned out that the targets were laid out in such a way that the reinforcement learning agent could gain a high score without having to finish the course. This led to some unexpected behavior when \citeauthor{amodei2016concrete} trained an RL agent to play the game.
+
+The RL agent finds an isolated lagoon where it can turn in a large circle and repeatedly knock over three targets, timing its movement so as to always knock over the targets just as they repopulate. Despite repeatedly catching on fire, crashing into other boats, and going the wrong way on the track, our agent manages to achieve a higher score using this strategy than is possible by completing the course in the normal way. Our agent achieves a score on average 20 percent higher than that achieved by human players.
+\end{quote}
+
+% \citeauthor{amodei2016concrete} highlight what happens when a misspecified reward function encourages an RL agent to subvert its environment by prioritizing the acquisition of reward signals above other measures of success.

@@ -1,0 +1,27 @@
+\subsubsection{Playing the Model, Not the Game~\citep{ha2018world}}
+\label{sec:worldmodels}
+\citet{ha2018world} presented an algorithm that learned from environment interactions how to model the visual and temporal information of a game with a pair of coupled generative models: a Variational Autoencoder (VAE)~\citep{kingma2022autoencodingvariationalbayes} and a Mixture Density Network-Recurrent Neural Network (MDN-RNN)~\citep{bishopMDN, graves2014generatingsequencesrecurrentneural}. Roughly speaking, the first model compresses each game frame into a compact internal representation, while the second tries to predict what happens next given the current game state. The VAE, named V, learned to reconstruct images of the world while compressing the information into a latent code, while the MDN-RNN, named M, learned to model the temporal information of the game in the same latent space and capture the game's transition dynamics.
+Once the game's spatial and temporal information was compressed into these generative models, the combined neural network was called a Recurrent World Model.
+On top of this learned world model, Ha and Schmidhuber trained a tiny neural control policy, C, with the CMA-ES algorithm~\citep{hansen2023cmaevolutionstrategytutorial}.
+
+Often, learning a controller in the environment is computationally expensive, requiring millions of state, action, reward, and next-state transition samples. 
+Collecting this data can be time-consuming; for example, each transition could require solving complex physics equations to accurately simulate the next step. 
+In contrast, learning a model of the environmental dynamics enables RL algorithms to be more data efficient by learning a policy in the dynamics model's latent space, which can be much cheaper~\citep{watterembed2control2015, hafner2024masteringdiversedomainsworld}.
+Furthermore, learned world models can take advantage of deep learning frameworks to accelerate their computations beyond the speed achieved by many traditional RL environments~\citep{kaiser2024modelbasedreinforcementlearningatari}.
+Therefore, the natural question is:
+how transferable is a policy learned in a world model to the original domain of interest? 
+
+One of the environments in which Ha and Schmidhuber tested this hypothesis was the VizDoom environment---an environment where neural agents learn to control the player character of the classic video game Doom directly from pixel observations.
+When the controller was trained purely inside the VizDoom world model, the agent achieved a high score---indicating it learned how to play Doom!
+However, \citet{ha2018world} noted in their publication that
+
+\begin{quote}
+    [i]n our initial experiments, our agent discovered an adversarial policy to move around in such a way so that the monsters in this virtual environment governed by [the MDN-RNN] never shoot a single fireball during some rollouts. Even when there are signs of a fireball forming, the agent moves in a way to extinguish the fireballs.
+
+
+    As a result of using M to generate a virtual environment for our agent, we are also giving the controller access to all of the hidden states of M. This is essentially granting our agent access to all of the internal states and memory of the game engine, rather than only the game observations that the player gets to see. Therefore our agent can efficiently explore ways to directly manipulate the hidden states of the game engine in its quest to maximize its expected cumulative reward. The weakness of this approach of learning a policy inside of a learned dynamics model is that our agent can easily find an adversarial policy that can fool our dynamics model---it will find a policy that looks good under our dynamics model, but will fail in the actual environment, usually because it visits states where the model is wrong because they are away from the training distribution.
+    
+\end{quote}
+
+This dynamic of extinguishing incoming fireballs is not part of the real game, so the agent learned to exploit a flaw in the world model to win the world-modeled version of the game it trained against.
+This means the model exploited loopholes that prevented it from doing what the researchers \emph{wanted} it to do (learn to play the actual game), and instead did what it was asked to do---get a high score in the \emph{learned} model of the game.

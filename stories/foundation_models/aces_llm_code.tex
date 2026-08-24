@@ -1,0 +1,19 @@
+\subsection{Code Generator Deceives LLM Labeler~\citep{pourcel2024acesgeneratingdiverseprogramming}}
+\label{sec:acescodegen}
+
+\citeauthor{pourcel2024acesgeneratingdiverseprogramming} introduced ACES, a framework designed to automatically generate diverse and challenging Python programming puzzles. To navigate the open-ended nature of code generation, ACES leverages an autotelic~\citep{colas2022autotelicagentsintrinsicallymotivated, wang2019poet} approach---where the system sets its own goals---to optimize for a wide variety of interesting problems.
+Each generated puzzle is categorized across ten distinct dimensions of programming proficiency, such as dynamic programming or bit manipulation. 
+The objective of the system is to populate an archive (using a MAP-Elites-based approach;~\citealp{mouret2015illuminating}) with puzzles that represent every possible combination of these skills.
+
+The generation pipeline operates in a continuous loop: first, a generator LLM is prompted to produce a new puzzle and its corresponding solution based on a specific target skill set. After the code is verified for correctness, a separate labeler/judge-LLM is given the source code to analyze the puzzle and determine which skills are actually required to solve it. 
+This label determines the puzzle's placement in the archive, grouping it with other problems requiring similar skills.
+In theory, this dual-agent setup provides a rigorous check: for example, the generator attempts to create a recursion puzzle, and the labeler confirms whether recursion was truly implemented.
+
+During an ablation study where the system's initial archive was restricted to only three puzzles, the researchers discovered that the generator LLM learned to hallucinate diversity. 
+The generator LLM would prepend a detailed comment to its code that claimed the puzzle required a specific set of complex skills---such as tree traversal or string manipulation---even when the underlying code was a simple, unrelated script.
+
+This behavior triggered a cascading failure in the labeler LLM. Rather than independently analyzing the Python logic, the labeler was hacked by the generator's description; it simply mirrored the skills listed in the comment. If the generator claimed a puzzle required Skill A, the labeler placed it into the archive under Bucket A, regardless of the code's actual content. This resulted in most buckets being filled, so the system appeared to be generating a vast array of sophisticated problems. In reality, it was just producing irrelevant code with dishonest labels.
+
+By lying about the necessary skills, the generator found a shortcut to satisfy the objective of filling an archive with diverse solutions, but without the computational effort of drafting complex code. 
+To mitigate this, \citeauthor{pourcel2024acesgeneratingdiverseprogramming} decoupled the generation of the code from its description. 
+By ensuring the labeler LLM only had access to the raw Python solution---and not the generator's self-serving comments---the researchers forced the system to ground its diversity judgments in the actual code rather than superfluous text strategically placed by the generator.

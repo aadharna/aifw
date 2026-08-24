@@ -1,0 +1,36 @@
+\subsubsection{The Evolved Radio~\citep{BirdRadio}}
+\label{sec:radio}
+
+
+In engineering, every component of a mechanical system has a strictly defined role. 
+In contrast, \citeauthor{BirdRadio} wanted to explore a hardware equivalent of evolutionary tinkering---the process by which natural evolution repurposes existing biological structures for entirely new functions~\citep{Jacob1982evolutiontinker}. 
+To test whether an artificial evolutionary algorithm could similarly exploit the subtle, unmodeled properties of physical hardware, they tasked it with evolving a high-frequency oscillator (a part of the computer that takes in power and outputs a rhythmic wave pattern, e.g., a sine wave).
+\citeauthor{BirdRadio} sought to evolve a high-frequency oscillator using an ``evolvable motherboard'' (EM)---a triangular matrix of analogue switches into which daughterboards containing circuit primitives, such as transistors, can be inserted. 
+To force the evolutionary algorithm to find a non-obvious solution, the researchers intentionally removed the capacitors from the system, and without them, a circuit lacks the time constant usually required to regulate a steady beat.
+By withholding this essential component, the researchers challenged their algorithm to bypass standard engineering logic and build a precise, self-contained timer from scratch.
+
+To guide the search, the researchers designed a scoring function that rewarded three key criteria: 1) producing \emph{any} measurable signal, 2) matching a target frequency of $25\text{ kHz}$ (25,000 cycles per second), and 3) maintaining that frequency with a steady, predictable rhythm. 
+By intentionally rewarding even low-level random noise (part 1), the researchers hoped to provide a simple initial target that allowed the algorithm to begin refining the circuit's behavior (with parts 2 and 3), ideally forcing the algorithm to refine that chaotic noise into a stable, functional oscillator.
+
+The evolutionary process produced a circuit that earned a near-perfect fitness score. 
+However, when the researchers examined the output with an oscilloscope, they found it did not oscillate stably; instead, it produced a signal with rapidly fluctuating frequencies. 
+The circuit appeared as if it should not work for the intended task, yet it was somehow satisfying the mathematical requirements of the reward function.  
+Upon closer analysis, the researchers discovered that evolution had not built a traditional oscillator, but had instead configured the hardware into a radio receiver! 
+
+By utilizing the printed circuit board tracks of the EM as an antenna and connecting them to an open programmable switch, the system became sensitive enough to pick up and amplify background radio waves emanating from nearby PCs in the laboratory in lieu of designing a capacitor to output a stable wave. 
+Because the fitness function rewarded any output amplitude---even noise---that appeared stable over the $2\text{-ms}$ sampling period, evolution had achieved a high score on the task by outsourcing the signal generation to its environment. 
+\citeauthor{BirdRadio} noted in their manuscript that
+
+\begin{quote}
+the evolutionary process had taken advantage of the fact that the fitness function rewarded amplifiers, even if the output signal was noise. 
+It seems that some circuits had amplified radio signals present in the air that were stable enough over the 2-ms sampling period to give good fitness scores... 
+These results demonstrate that unconstrained, intrinsic hardware evolution will potentially exploit any physical characteristic that can influence circuit behavior, and that these characteristics are present in the entire evolutionary environment.
+\end{quote}
+
+Cheating in this way was only possible because the evolution was occurring in a physical medium rather than a simplified simulation. 
+By operating in the real world, the algorithm could exploit subtle physical properties---like electromagnetic interference and high-impedance PCB tracks---that a human programmer would never have thought to model.
+
+% \begin{quote}
+% % only unconstrained physical systems situated in real-world environments can ever construct novel sensors as they have done here and not in simulation. 
+% These results demonstrate that unconstrained, intrinsic hardware evolution will potentially exploit any physical characteristic that can influence circuit behavior, and that these characteristics are present in the entire evolutionary environment.
+% \end{quote}

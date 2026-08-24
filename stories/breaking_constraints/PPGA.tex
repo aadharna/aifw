@@ -1,0 +1,35 @@
+\subsubsection{Robotic Humanoid Walks Without Using Its Feet~\citep{batra2024proximalpolicygradientarborescence}}
+\label{sec:ppga}
+
+The bipedal humanoid walker is a benchmark robotics task where the goal is to teach a roughly human-shaped robot to walk forward as fast as possible~\citep{todorov2012mujoco}.
+In locomotion environments such as the bipedal walker, it is quite common when training quality-diversity~\citep{mouret2015illuminating} and reinforcement learning algorithms~\citep{sutton2018reinforcement} to have a vertical termination height built into the task definition to restart the task after the agent falls over and can no longer easily make progress.
+This task parameter constrains the robot to moving within an acceptable vertical range, and if the robot's torso drops below a certain value, a reset is triggered, ending the trial and returning the robot to the initial state.
+
+This cutoff saves time and compute resources by terminating early when the agent is on its way to falling down.
+It also is designed to improve the learning efficiency and training stability of algorithms like Proximal Policy Optimization (PPO; \citealp{schulman2017proximalpolicyoptimizationalgorithms}).
+Without this guardrail, a robot might walk perfectly for ten seconds before falling and thrashing on the ground for the remainder of the episode, accumulating penalties for expending energy. 
+This makes evaluating the earlier, successful actions difficult because the RL objective judges an action by the reward accumulated during the rest of the rollout. 
+In other words, the clear signal of those initial good steps gets confounded by the noise of the subsequent random actions, dragging down the expected value of those early steps.
+With the guardrail, the rollout ends when the agent falls, and the algorithm is able to reinforce the behavior that led to the successful 10 seconds of walking.
+However, while these resets reduce variance and make learning easier, they also act as a filter that suppresses other functional solutions.
+This anecdote asks what happens when we remove this reset condition and allow optimization to explore the dynamics usually hidden behind the benchmark's guardrails.
+
+Because myopically chasing rewards can lead to agents not learning by getting stuck in local optima~\citep{lehman2011abandoning, norman2023firstexplore}, \citet{batra2024proximalpolicygradientarborescence} instead set out to explore as many possible walking gaits as they could, regardless of their initial scores on the walking task.
+Instead of rewarding the AI for solving the task, \citet{batra2024proximalpolicygradientarborescence} based their algorithm, known as Proximal Policy Gradient Arborescence (PPGA; \citealp{batra2024proximalpolicygradientarborescence}), on Novelty Search~\citep{lehman2011abandoning}.
+Novelty Search rewards the AI for doing something it has never done before (similar to how, in \Cref{sec:pokemon}, \citeauthor{PokemonRedExperiments}~\citeyear{PokemonRedExperiments} kept a collection of game frames the model had seen previously to reward the agent when it encountered new frames).
+PPGA organizes these new behaviors into a ``tree'' (arborescence), allowing the AI to use failed experiments as ``stepping stones'' to reach complex goals like walking.
+The stepping-stone principle for exploration suggests that states with low scores but interesting properties can be essential precursors to future success~\citep{lehman2011abandoning, stanley2015greatness}.
+In this spirit, \citet{batra2024proximalpolicygradientarborescence} told us they asked themselves:
+
+\begin{quote}
+
+``What if we get rid of the termination height criterion and see what kind of behaviors PPGA finds, if any?''
+[In that case, t]he purpose of PPGA on locomotion tasks is to find diverse locomotion gaits by exploring all values of proportion foot contact time, i.e., the proportion of time each foot is in contact with the ground in a fixed-length trajectory.
+For example, if the proportion foot contact time of a leg is 1.0, that means it never leaves the ground. Intuitively, that implies certain values like 0.0 are unreachable because that would mean the foot never touches the ground, which does not make sense.
+Or so we thought.
+Turns out, if you remove the termination height, the agent immediately falls over and learns to use its hips to propel itself forward while keeping its torso and hands in the air, kind of like it's gliding on the ground, while also reaching a proportion foot contact time of near 0 for each foot!
+    
+\end{quote}
+
+This exploit is similar to what a quality-diversity evolutionary algorithm called MAP-Elites~\citep{mouret2015illuminating} found with a six-legged robot~\citep{cully2015robots}, which flipped itself upside down to move quickly without touching its feet to the ground~\citep{lehman2018surprising}.
+That RL and evolutionary algorithms routinely discover similar exploits supports the claim that creativity, and even mischief, are the rule and not the exception for AI agents.

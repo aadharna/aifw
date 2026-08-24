@@ -1,0 +1,28 @@
+\subsection{Magnetic Control of Tokamak Plasmas through Deep Reinforcement Learning~\citep{Degrave2022tokamak, TalkRL_Riedmiller_2023}}
+\label{sec:fusion}
+
+% \ad{todo: make this one SUPER FUCKING CLEAR}
+
+Researchers explored whether deep reinforcement learning could control the magnetically confined plasma within a tokamak fusion reactor---a notoriously complex task traditionally managed by meticulously engineered control systems~\citep{Walker01112006tokomak}. 
+The goal was to train a neural network to manipulate the reactor's magnetic coils, in the hope that it could discover a policy that would match or even surpass the performance of established methods developed over many years of human expertise~\citep{Wesson2011tokamak}.
+The project, a collaboration with plasma physics experts at the Swiss Plasma Center (SPC) at \'Ecole polytechnique f\'ed\'erale de Lausanne (EPFL), was met with understandable skepticism.
+As Dr. Martin Riedmiller, a lead researcher on the project, recalls in an interview about the work~\citep{TalkRL_Riedmiller_2023}, the physicists had invested years in perfecting their existing controllers. 
+``Could a neural network controller do the same thing that took years of design iteration on PID controllers? It was a big question,'' he notes. When the first RL agent successfully maintained a stable plasma for two seconds, the team was thrilled. The physicists, according to Riedmiller, ``were looking at the results in awe because they thought it wasn't possible.''
+However, the true surprise came from how the agent achieved this stability. Dr. Riedmiller further explains~\citep{TalkRL_Riedmiller_2023} that the agent discovered a solution that a human engineer, for good reason, would never have designed:
+
+\begin{quote}
+What happened in that experiment, in particular, was that the controller used coils that were not meant to keep the plasma stable, but had a different purpose. Using those coils achieved the task the RL controller was optimizing for, but it also put a lot of mechanical strain on the system. A human would never use those controllers in a PID approach because they knew that was not a good idea from a mechanical point of view. However, since our RL controller didn't have this knowledge... it was using those coils, and [the EPFL team was] very surprised that this worked at all.
+
+[...]
+
+[T]hey [agreed] the controller found a new control strategy, but they also asked us please not to use it again and not to use it in further experiments, because of the mechanical strain, and they were afraid that this, at some point, would also break, their mechanical, system, which would be very bad for all sides, of course.
+\end{quote}
+
+After removing the auxiliary coils from the agent's action space, the team retrained the RL agent to successfully control plasma in the tokamak reactor without straining the mechanism.
+This outcome illustrates a core dynamic in reinforcement learning. Riedmiller continued, saying:
+
+\begin{quote}
+    Once again, RL exploiting everything it can to just get that reward without the notion of whether it's a bug or whether it's intended or any of that. That's really cool.
+\end{quote}
+
+On the other hand, it also highlights the critical importance of specifying all operational constraints---even those that seem obvious to human experts.

@@ -1,0 +1,37 @@
+\subsection{From Human Data to Phantom Crafting: VPT's Shortcut to Failure~\citep{baker2022video}}
+\label{sec:vpt}
+
+Researchers at OpenAI sought to train agents to play Minecraft directly using the same interface as humans---a keyboard and mouse for control and the screen for observing the game state.
+This task is an extremely difficult exploration problem due to the high dimensionality of the action and observation spaces and the open-ended nature of Minecraft.
+Minecraft's open world has no single, defined goal, forcing an agent to develop a hierarchical set of sub-goals to progress~\citep{baker2022video}. 
+Meanwhile, the environment is composed of a near-infinite number of possible block configurations; a typical human player using keyboard and mouse has hundreds of possible combinations of button presses available at any given moment.
+This sheer number of options makes a brute-force approach to exploration computationally intractable~\citep{guss2021robustdomainagnosticreinforcement}. 
+The reward structure is also extremely sparse. 
+For example, the goal of ``getting a diamond'' requires a long chain of diverse actions, from gathering wood and crafting tools to mining, a process that takes people around 10 minutes of continuous gameplay. 
+When an AI agent performs tens of thousands of actions without receiving a single positive reward signal, the credit assignment problem becomes particularly difficult~\citep{guss2021minerl2019competitionsample}.
+
+To overcome these hurdles, researchers created a new algorithm called Video Pre-Training (VPT)~\citep{baker2022video}, which leverages a large, unlabeled dataset of human gameplay to guide the agent's initial learning.
+To be able to use the large unlabeled dataset, the researchers created a small labeled dataset of humans playing the game, and trained an inverse dynamics model~\citep{nguyentuong2008learning} that maps frame pairs to their corresponding action label (i.e., if the player was in frame $a$ at time $t$ and frame $b$ at time $t+1$, what was the action necessary for that transition).
+The researchers then used that inverse dynamics model to pseudolabel the internet-scale corpus of online Minecraft videos (i.e., given each pair of subsequent frames in the entire unlabeled dataset, they used the inverse dynamics model to provide a best guess of what actions the players took to go from frame $a$ to frame $b$).
+Now pseudolabeled, the large dataset of human trajectories served to seed the process of behavior cloning (i.e., getting the AI agent to match what the human experts do)~\citep{ross2011reductionimitationlearningstructured}. 
+This large pretraining step of cloning online human behavior was called Video Pre-Training~\citep{baker2022video}. 
+After pretraining, the model was further trained with reinforcement learning to solve a plethora of tasks such as ``get a diamond'', ``build a house'', and ``run a farm''---each a notoriously difficult and potentially long-horizon task~\citep{fan2022minedojo, guss2021minerl2020competitionsample}.
+
+The researchers found that the pretrained policy often helps the agent overcome the sparsity and deceptiveness of the task's reward function, as human strategies generally take into account long-term goals, such as not dropping and leaving behind tools that will be needed later (e.g., in Minecraft, a crafting table).
+But there was one particular case where the prior from the VPT foundation model seemed ineffective at overcoming a particularly subtle form of deceptiveness in their reward function.
+By clicking on an item in the Minecraft recipe book and then closing the inventory before the crafting grid is populated, it is possible to get the selected item to show in the player's inventory without actually crafting it. 
+Doing so does not count as a crafting event, and it is not possible to use items that were added to the inventory in this way, but it is detected by the reward function as an instance of obtaining the target item.
+In other words, it allows the agent to get the reward for a particular item without actually crafting the item and spending the necessary resources.
+The agent learned to get the reward signal for crafting items without actually making them, hampering its ability to learn how to create and use better items later in the skill tree. 
+The researchers hypothesized that this failure to actually craft items is the primary reason why fine-tuning from the VPT foundation model directly fails to learn even the necessary prerequisites for making a pickaxe---one of the easier tools to create in the game.
+
+The agent exploits this glitch to trigger the reward for successfully creating a crafting table without producing a functional item. 
+Consequently, it lacks the physical table required to craft a wooden pickaxe, effectively failing to kick-start the progression chain of gathering materials to unlock higher-tier tools to gather better materials.
+
+Interestingly, this behavior did not occur when fine-tuning from the ``early-game model''---a specialized version of the agent pretrained only on the first few minutes of human gameplay, wherein human players consistently execute foundational actions like making crafting tables and simple tools.
+The researchers hypothesized that, unlike the broad foundation model, the early-game model possessed a stronger prior for the basic mechanics of resource gathering and tool creation.
+Because the early-game model was only trained on human trajectories where those fundamental steps were executed correctly, it was less likely to fall into the ``ghost-crafting'' trap.
+
+When the model receives enough data to learn the correct way to craft items, it can then successfully use those items in more difficult, but more rewarding, downstream tasks like mining ores. 
+If it ever rediscovers the loophole, there is a short-term immediate payoff, but a much lower overall score for that trajectory because it cannot obtain more complex resources.
+This suggests that once the model discovers how to execute high-tier objectives with sufficient frequency, it learns to treat the ghost-crafting shortcut as a functional dead end and will abandon it.  

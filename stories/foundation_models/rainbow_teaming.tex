@@ -1,0 +1,22 @@
+\subsection{Automated Vulnerability Probing System Exploits Vulnerability in Its Own Evaluator~\citep{samvelyan2024rainbow}}
+\label{sec:rainbow}
+
+Researchers working on Rainbow Teaming~\citep{samvelyan2024rainbow} aimed to systematically generate diverse adversarial prompts for large language models (LLMs). 
+The goal was to automate part of red teaming (the practice of probing a system for vulnerabilities, in this case to make the model respond with unsafe sentence completions). 
+Instead of relying only on humans to attempt jailbreaks one at a time, the system searched for many different prompts that could induce unsafe behavior in a target model. 
+Their approach used the MAP-Elites quality-diversity algorithm~\citep{mouret2015illuminating} (a form of evolutionary search) to build an archive of candidate attacks. To decide which prompts were worth keeping and mutating further, the initial version of the system used a reward model as an evaluator. That evaluator scored how likely the target model's response was to be unsafe.
+Dr. Mikayel Samvelyan told us:
+
+\begin{quote}
+One experience we had recently was during our Rainbow Teaming~\citep{samvelyan2024rainbow} project, which focuses on generating diverse adversarial prompts. We used an evolutionary approach, MAP-Elites~\citep{mouret2015illuminating}, to create an archive of effective prompts for jailbreaking LLMs. 
+Our initial method of evaluating prompt effectiveness was based on a reward model score, which is essentially a classifier that categorized responses as safe or unsafe. More specifically, we used the probability of the reward model score classifying a response to a prompt as ``unsafe'' as the fitness function for optimization.
+
+However, we encountered a surprising twist: our method not only found prompts that successfully jailbroke the target model but also ended up jailbreaking the evaluator (the reward model) itself. Essentially, our mutations resulted in textual prompts that are so out of distribution for the target model that it is fooled, but it is also out of distribution for the evaluator, which is similarly fooled. The evaluator began misclassifying safe responses as unsafe, leading our search process to prioritize these misleadingly successful prompts. This issue filled our archive with ineffective prompts, counter to our goals.
+To address this, we shifted from a score-based evaluator to a comparison-based judge, which proved more resilient against this type of reward hacking.
+
+\end{quote}
+
+Rather than finding jailbreaks only in the target model, as desired, Rainbow Teaming fooled the proxy used to judge whether a prompt was a successful attack. 
+Because the search algorithm optimized directly for the evaluator's score, the evaluator itself became the vulnerability to be exploited rather than the target model.
+In that sense, Rainbow Teaming recreated the same basic pattern as ACES: an optimizer found a way to satisfy a downstream judge without solving the task the judge was meant to measure.
+

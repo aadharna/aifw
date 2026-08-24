@@ -1,0 +1,81 @@
+\subsection{Discovering a Quantum Result Thought to be Impossible, with Highly Productive Consequences
+~\citep{KrennEntangle2017}}
+\label{sec:quantum}
+
+In 2014, Dr. Mario Krenn and colleagues started exploring how AI could design quantum optical experiments, hoping to discover more complex forms of quantum entanglement than traditional, human-driven approaches.
+Designing quantum experiments involving entangled photons typically relied on expert intuition and manual analysis, inherently limiting the complexity of states that researchers were able to explore.
+To address this, \citet{autoQuantumKrenn2016} developed a numerical simulation algorithm capable of systematically constructing virtual experimental setups from a predefined toolkit of elements commonly available in quantum optics labs. 
+
+Dr. Mario Krenn told us:
+
+\begin{quote}
+
+I developed a numerical simulator for quantum optics experiments---a program that knows the transformation for each optical element in our laboratory, such as lasers, beam splitters, holographic plates, etc.
+My exploration algorithm then had access to the toolbox of all available optical elements in our lab. 
+Initially, the algorithm started by assembling virtual configurations of the optical equipment in a random way and computing the expected final quantum state.
+If the result exhibited a specific entanglement structure (for experts: all involved photons are maximally entangled), it would report the resulting quantum state. 
+
+The algorithm also included a discrete learning component, which significantly sped up exploration of the large space of quantum experiments.
+Whenever a specific experiment produced a non-trivial entangled outcome, % (i.e., entanglement greater than that directly provided by the optical elements), 
+the experimental setup was automatically added to the algorithm's toolbox.
+This allowed the algorithm, in subsequent iterations of creating new virtual experiments, to access more complex setup combinations already known to be useful.
+This way, it could reuse previously discovered structures. 
+
+The task for my program, in March 2014, was to find experimental configurations capable of producing more complex forms of entanglement by identifying suitable experiments, leveraging quantum interference, and making full use of optical components available in the lab.
+One of the tools in the algorithm's toolbox is a specific element commonly used for generating entangled photon pairs: a nonlinear crystal. 
+This nonlinear crystal can produce photon pairs, and experimentally, one can tune the photons to create, for example, 2-dimensional entanglement, or 3-dimensional entanglement, and so on.
+
+The dimension of the entanglement can be understood as follows: 
+% Suppose photons have colors (since light particles have a frequency corresponding to color). 
+Photons can be interpreted as having colors (since light particles have a frequency corresponding to color).
+Therefore, a 2-dimensional entanglement could produce a photon pair where both photons are red, or both are green simultaneously. Similarly, a
+3-dimensional entanglement could produce a photon pair where both photons are red, both are green, or both are blue simultaneously.
+
+\end{quote}
+
+The key point is that a 3-dimensional entangled photon pair has three possible correlated color states.
+Krenn allowed the program two nonlinear crystals and enough resources to produce two such photon pairs, for four photons total. 
+Each of the three possible correlated color states for the first pair could then be combined with each of the three possible correlated color states for the second, yielding $3 \times 3=9$ possible joint states for the two photon pairs. 
+
+\begin{quote}
+I anticipated that the search algorithm might reshuffle this entanglement to achieve a maximum of $3 \times 3 = 9$ dimensions. Given the limited resources, I assumed this would be the absolute upper limit.
+
+When I came back a week later, I saw that the algorithm found a solution that overcame the limit that I imposed. 
+It found a 10-dimensional entangled quantum state, which should have been completely impossible given the restricted resources I allowed.
+After a few days with a lot of discussion with my PhD advisor, Anton Zeilinger, I found out that the algorithm had independently rediscovered a technique that was invented in the early 1990s in a famous experiment by Leonhard Mandel~\citep{Mandel1991Optic}. And I, as its developer, did not have prior knowledge of this specific topic.
+
+\end{quote}
+
+Krenn expected each photon source to produce one pair of photons. Instead, the algorithm arranged the experiment so that either the first crystal produced all of the photons or the second crystal did, with quantum mechanics leaving the two possibilities in superposition. As a result, the photons' source (which crystal they came from) became an additional degree of freedom that could be used for entanglement. That was accomplished because the algorithm arranged the photons' paths so that, although all the photons originated from one crystal, they appeared to have passed through both. Krenn states that these properties---a quantum superposition over which source produced the photons and the appearance that the photons traverse the unused source---are hallmarks of Mandel's experiment.
+
+\begin{quote}
+
+With further reading and experimentation, it became clear that the algorithm was, in fact, implementing something quite similar to Mandel's experiment--but now for far more complex systems.
+Mandel's technique had never been connected to the regime of quantum entanglement before. As soon as we understood this, we were immediately able to generalize the idea to many other cases by hand. %~\citep{KrennEntangle2017}.
+In our paper, Entanglement by Path Identity~\citep{KrennEntangle2017}, we documented our understanding of how this technique operates.
+In some way, it is very exceptional, because none of the co-authors invented the theoretical idea of the paper. We, the co-authors, just analysed what the computer has shown to us.
+
+\end{quote}
+
+As they analyzed the algorithm's results further, they also realized the results revealed an unnoticed connection between quantum optics and graph theory:
+
+\begin{quote}
+
+We noticed that the number of ways to combine more photon pair sources increased non-trivially: the numbers grew as 1, 1, 6, 6240 (for one, two, three, and four photon pair sources).
+When we checked the On-Line Encyclopedia of Integer Sequences, we found that this exactly matched a known sequence from graph theory: the number of 1-factorizations of complete graph $K_{2n}$~\citep{SloaneA000438} which is the number of ways to partition a fully connected graph into non-overlapping pairs for $n = 1, 2, 3, \text{ and } 4$.
+This discovery indicated that we were dealing with not just quantum mechanical experiments but also graph theory.
+
+\end{quote}
+
+After several more months of investigation into this connection, its broader significance became clear:
+
+\begin{quote}
+
+We can write quantum experiments now in a very abstract way, as colored weighted graphs. 
+This link has been extremely productive because now we can ask quantum physics questions, translate them to graph theory, answer them there and translate them back.
+It has led to several new discoveries (now done by humans using graph-theoretic tools), involving new ways of complex quantum interference with photons that have consequences for photonic quantum computers and communication networks.
+Experimentally, several groups have recently been able to implement and observe some of these graph-theoretical predictions for the first time~\citep{Bao2023, Feng23Opt, Qian2023}.
+Conceptually, these abstract graphs representing quantum experiments are now one of our main tools for the AI-driven design of new quantum experiments~\citep{RuizGonzalez2023}.
+
+\end{quote}
+

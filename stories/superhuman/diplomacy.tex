@@ -1,0 +1,47 @@
+\subsection{Professional Diplomacy Players Meet Diplodocus and Cicero~\citep{bakhtin2022masteringgamenopressdiplomacy, meta2022humandiplomacy}}
+\label{sec:diplomacy}
+
+Diplomacy is a competitive, turn-based multiplayer game that was long considered beyond the reach of AI because success relies on social coordination as much as tactical play. Players control European powers in the years leading up to World War I. Gameplay proceeds through alternating phases of negotiation and order execution: players first negotiate, potentially forming alliances and coordinating their plans, then simultaneously reveal their troop movements, gaining or losing military units as a result. Playing the game well therefore requires both negotiating with other powers and strategically deploying troops.
+
+The game is played in two formats relevant here. In the full game of Diplomacy, players negotiate using natural language. In Gunboat Diplomacy, explicit communication is forbidden, so players must instead infer one another's intentions from board maneuvers. In 2022, Meta AI introduced Diplodocus for Gunboat Diplomacy~\citep{bakhtin2022masteringgamenopressdiplomacy} and Cicero for the full game~\citep{meta2022humandiplomacy}.
+
+Markus Zijlstra, an expert Diplomacy player involved in the development of Cicero, observed unexpected strategies emerging from both systems. In Gunboat Diplomacy, Diplodocus repeatedly found strategies that experienced human players would usually avoid. One example was its decision to play Germany, traditionally an army-based power, primarily as a naval power. On this strategy, Zijlstra noted:
+
+\begin{quote}
+When Diplodocus is playing Germany, which is traditionally an army-based power, it did so as a primarily naval power in the early game.
+This is extremely unintuitive because the fleets cannot really be used defensively, so it's something of an all-or-nothing strategy focused on attacking Scandinavia and is dependent on France not attacking Germany's weak western front.
+In practice, it was extremely effective. Despite France having [a] window where they could attack Germany, most did not, because they thought that a fleet-based Germany was not a threat to them.
+\end{quote}
+
+Another memorable example showed Diplodocus using non-tactical moves to signal cooperation. In Gunboat Diplomacy, signaling moves show intent to other players rather than serving a purely tactical purpose. In one game where Diplodocus played Italy and Zijlstra played Austria, he recalled:
+
+\begin{quote}
+There was a game in which Diplodocus moved into an Austrian home center early in the game, which in Gunboat [Diplomacy] would often be seen as an act of war. But it then signalled an intention to work with me by building double fleets [...] and repeatedly issuing support holds to my units which served no tactical purpose and seemed to be stating ``I want to work with you''. That got me back onside enough that I started working with it and left myself a little open to it, at which point it immediately launched a crippling attack on me.
+
+More generally, Diplodocus often abandoned areas that human players would consider vital to defend in order to aggressively push into more defensible areas that it did not yet control.
+There was one particularly stunning example of this where as England, it abandoned its entire homeland (meaning it gave up any possibility of building new units). Later in the game Diplodocus successfully launched an attack back into its homeland again and ended the game with an extremely strong position. 
+
+\end{quote}
+
+Those ideas also fed back into his own play, though not without hesitation:
+
+\begin{quote}
+Diplodocus really pushed the skill ceiling on Gunboat Diplomacy. With Diplodocus, I now much more aggressively push for certain ``safe areas'' (primarily Scandinavia and Iberia) in Gunboat Diplomacy when I'm under attack, rather than prioritising my home centers. This was generally quite effective and helped me match the bot's performance for a long time in one of the tournaments I played against it.
+Furthermore, I prioritise creating alliances which will let me gun for those safe areas off the bat -- e.g. trying to work with France as Germany. This is kind of a scaled-down version of Diplodocus' alliance behavior.
+I still don't play the full opening that Diplodocus used as Germany, because doing so is going all in on that alliance in a way that feels uncomfortably committal to me. It's an approach humans get trained out of as they get more experienced with the game. [...] You learn that actually, it's better to hang back, figure out who appears to be most friendly toward you, and then go in alongside that person; that way your performance is likely to be much more consistent.
+
+Diplodocus flipped that on its head and went all-in in a way that made a strong pitch for its preferred alliance at the same time. [...] It got very good results from it, and I suspect that experienced human players (myself included) could improve their average by adopting it -- but I hate the idea that I could be throwing away a game I'd otherwise do very well in by doing this, even though it might improve my results in others.
+\end{quote}
+
+Zijlstra observed a different form of strategic innovation in Cicero, Meta AI's agent for the full game of Diplomacy~\citep{meta2022humandiplomacy}. Because Cicero had to negotiate using natural language, it learned to exploit features of the communication phase. Although it was trained not to communicate false plans, it sometimes withheld messages or omitted information when an honest response would have been strategically disadvantageous.
+
+\begin{quote}
+
+% Cicero was Meta AI's AI for the full game of Diplomacy, described in the Science paper~\citet{meta2022humandiplomacy}.
+Cicero's messages were set to be aligned with its plans, meaning it generally would not lie about what it was doing. This was for a good strategic reason -- lying in Diplomacy is something that has to be done sparingly to be effective since each time you do it, the other player will be less likely to trust you in future.
+
+That meant when it did not intend to work with a player -- either by stabbing said player in the back, or just by doing something that the player would clearly be annoyed about -- it just wouldn't message that player once it had decided on its plan. The process there would be that it would generate a set of message candidates which were honest about those intentions, and then all message candidates would be rejected by the filter checking for whether it was strategically advantageous to send those messages. This also happened when it proposed a plan that it very much wanted to go with, but its ally rejected said plan and proposed an alternative that was suboptimal for Cicero -- it sometimes wouldn't message them back.
+
+Particularly in the case where it was still working with the player but had just made a move it knew they wouldn't be happy about, Cicero would quite often then begin the Press (aka discussion) maneuver in the next phase with something along the lines of ``Sorry, I didn't see your message in time, otherwise I would have changed my orders'', presumably because in training data this is something often said after a span of not saying anything. This worked surprisingly well (when it did not use it multiple times with the same player, anyway) and the player would often excuse the move as an understandable mistake, and continue working with Cicero, with Cicero in a much better position than it would have been otherwise.
+
+\end{quote}
