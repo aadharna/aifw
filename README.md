@@ -6,16 +6,17 @@ AI can be surprisingly creative, outsmarting the researchers using and developin
 
 ----
 
-## Submitting your own anecdote: 
+## Submitting your own anecdote:
 
+Either
 ```
   - Submit a PR directly here under the contributions folder
-  - write up and email your story to me at aadharna@gmail.com
+  - Write up and email your story to me (aadharna@gmail.com), and I can add it
 ```
 
-When writing up your anecdote, please note that we would like it to be understandable by as large an audience as possible. 
+When writing up your anecdote, please note that we would like it to be understandable by as large an audience as possible while keeping technical rigour. 
 
-The story should give just enough background, set up what you expected to happen, what actually happened, and why it was surprising.
+The story should give just enough background, set up what you expected to happen, what actually happened, and explain why it was surprising. If you like, you can even give your takeaway from the story! 
 
 In the future, we would like this to be a self-sustaining collection managed by the community, and so are looking into additional options like creating a Wikipedia page.
 
