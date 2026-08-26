@@ -1,6 +1,6 @@
 Our official repo for 
 
-# AI Finds A Way
+# [AI Finds A Way](https://arxiv.org/abs/2608.23875)
 
 AI can be surprisingly creative, outsmarting the researchers using and developing it. That can lead to scientific breakthroughs, superhuman capabilities, and generating new knowledge, but such creativity can also be mischievous, raising safety concerns. We crowd-sourced anecdotes from the AI community of when researchers were surprised by how creative, innovative, and/or mischievous AI was in their experiments. The result: 26 entertaining stories of AI outwitting humans, whether researchers or opponents. 
 
