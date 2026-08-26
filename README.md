@@ -22,4 +22,16 @@ In the future, we would like this to be a self-sustaining collection managed by 
 
 ----
 
-todo: add arXiv citation once it's up
+citation: 
+
+```
+@misc{dharna2026aifindsway,
+      title={AI Finds A Way}, 
+      author={Aaron Dharna and Cong Lu and Ryan Sullivan and Joel Lehman and Victoria Krakovna and Jeff Clune},
+      year={2026},
+      eprint={2608.23875},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2608.23875}, 
+}
+```
