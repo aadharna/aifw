@@ -18,6 +18,8 @@ When writing up your anecdote, please note that we would like it to be understan
 
 The story should give just enough background, set up what you expected to happen, what actually happened, and explain why it was surprising. If you like, you can even give your takeaway from the story! 
 
+Finally, don't feel compelled to match my use of .tex files. Write up the story in whatever readable form is easiest for you! 
+
 In the future, we would like this to be a self-sustaining collection managed by the community, and so are looking into additional options like creating a Wikipedia page.
 
 ----
